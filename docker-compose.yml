@@ -1,0 +1,50 @@
+version: '3'
+services:
+  user-api:
+    build:
+      context: ./user-api
+    container_name: user-api
+    ports:
+      - "3001:3000"  # Expose user-api on port 3001 on the host machine
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/user_api_development  # PostgreSQL connection URL
+    depends_on:
+      - db
+
+  voting-api:
+    build:
+      context: ./voting-api
+    container_name: voting-api
+    ports:
+      - "3002:3000"  # Expose voting-api on port 3002 on the host machine
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/user_api_development  # PostgreSQL connection URL
+      - USER_API_URL=http://user-api:3000  # URL for the user-api
+    depends_on:
+      - db
+      - user-api
+
+  db:
+    image: postgres:latest  # Use the latest PostgreSQL image
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres        # PostgreSQL username
+      POSTGRES_PASSWORD: password    # PostgreSQL password
+      POSTGRES_DB: user_api_development          # Default database name
+    ports:
+      - "5433:5432"  # Change the external port to 5433
+    volumes:
+      - ./db_data:/var/lib/postgresql/data  # Mount a volume to persist data
+
+  frontend:
+    build:
+      context: ./ufc-frontend  # Path to your frontend Rails app
+    container_name: frontend
+    ports:
+      - "3000:3000"  # Expose frontend on port 3000
+    depends_on:
+      - user-api
+      - voting-api
+    environment:
+      - USER_API_URL=http://user-api:3000
+      - VOTING_API_URL=http://voting-api:3000
