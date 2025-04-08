@@ -1,0 +1,23 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV['DATABASE_HOST'] || 'db' %>  # 'db' matches the service name in Docker Compose
+  port: 5432
+  username: <%= ENV['DATABASE_USERNAME'] || 'postgres' %>  # Default to 'postgres'
+  password: <%= ENV['DATABASE_PASSWORD'] || 'password' %>  # Default to 'password'
+
+development:
+  <<: *default
+  database: user_api_development
+
+test:
+  <<: *default
+  database: user_api_test
+
+production:
+  <<: *default
+  database: user_api_production
+  host: <%= ENV['DATABASE_HOST'] || 'db' %>  # In production, 'db' is used
+  username: <%= ENV['DATABASE_USERNAME'] || 'postgres' %>
+  password: <%= ENV['DATABASE_PASSWORD'] || 'password' %>

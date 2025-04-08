@@ -1,0 +1,17 @@
+<h1>Register</h1>
+
+<%= form_with url: users_path, method: :post, local: true do |form| %>
+  <div>
+    <%= form.label :name %>
+    <%= form.text_field :name, name: "user[name]" %>
+  </div>
+
+  <div>
+    <%= form.label :email %>
+    <%= form.email_field :email, name: "user[email]" %>
+  </div>
+
+  <div>
+    <%= form.submit "Register" %>
+  </div>
+<% end %>

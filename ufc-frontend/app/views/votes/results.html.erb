@@ -1,0 +1,12 @@
+<!-- app/views/votes/results.html.erb -->
+
+<h2>Voting Results</h2>
+<% if @results.present? %>             
+  <% @results.each do |result| %>      
+    <p><%= result['name'] %>: <%= result['vote_count'] %> votes</p>  <!-- Access as Hash keys -->
+  <% end %>
+<% else %>                             
+  <p>No results yet. Please cast your vote!</p>                                                     
+<% end %>
+<%= link_to 'Back to Voting', votes_path %> 
+<!-- Link to the voting page -->

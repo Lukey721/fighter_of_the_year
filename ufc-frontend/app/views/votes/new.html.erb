@@ -1,0 +1,22 @@
+<h1>Vote for your favorite fighter</h1>
+
+<%= form_with(model: @vote, scope: :vote, url: votes_path, method: :post, data: { turbo: false }) do |form| %>
+  <div>
+    <%= form.label :fighter_id, "Choose a fighter" %>
+
+    <% if @fighters.is_a?(Array) %>
+      <%= form.select :fighter_id, @fighters.map { |f| [f["name"], f["id"]] }, prompt: "Select a fighter" %>
+    <% else %>
+      <p style="color:red;">Unable to load fighters. Please try again later.</p>
+    <% end %>
+  </div>
+
+  <div>
+    <%= form.label :user_id, "User ID" %>
+    <%= form.number_field :user_id, value: 1 %>
+  </div>
+
+  <div>
+    <%= form.submit "Vote" %>
+  </div>
+<% end %>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>UfcFrontend</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <%= yield %>
+
+    <footer style="margin-top: 2rem; padding: 1rem; text-align: center; background: #f0f0f0;">
+      <p>
+        Want to register a new user? 
+        <%= link_to "Back to Sign Up", root_path, style: "text-decoration: underline; color: #007bff;" %>
+      </p>
+    </footer>
+  </body>
+</html>
