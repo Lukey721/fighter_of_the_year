@@ -11,12 +11,39 @@
   </head>
 
   <body>
+    <!-- Header -->
+    <header style="background: #f8f9fa; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+      <h1 style="margin: 0;">UFC Voting App</h1>
+      <div>
+        <% if session[:user_email] %>
+          <span>Logged in as <strong><%= session[:user_email] %></strong></span>
+          <%= button_to "Logout", logout_path, method: :delete, style: "margin-left: 1rem;" %>
+        <% else %>
+          <%= link_to "Login", login_path, style: "margin-right: 1rem;" %>
+          <%= link_to "Sign Up", root_path %>
+        <% end %>
+      </div>
+    </header>
+
+    <!-- Flash messages -->
+    <% if flash[:notice] %>
+      <p style="color: green; padding: 0.5rem 1rem;"><%= flash[:notice] %></p>
+    <% elsif flash[:alert] %>
+      <p style="color: red; padding: 0.5rem 1rem;"><%= flash[:alert] %></p>
+    <% end %>
+
+    <!-- Main Content -->
     <%= yield %>
 
+    <!-- Footer -->
     <footer style="margin-top: 2rem; padding: 1rem; text-align: center; background: #f0f0f0;">
       <p>
         Want to register a new user? 
         <%= link_to "Back to Sign Up", root_path, style: "text-decoration: underline; color: #007bff;" %>
+      </p>
+      <p>
+        Want to Vote? 
+        <%= link_to "Vote Here", votes_path, style: "text-decoration: underline; color:rgb(60, 255, 0);" %>
       </p>
     </footer>
   </body>

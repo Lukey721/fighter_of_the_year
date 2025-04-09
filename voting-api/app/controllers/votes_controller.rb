@@ -1,14 +1,15 @@
 class VotesController < ApplicationController
+  # before_action :authenticate_user, only: [:create]
+
   def new
+    Rails.logger.info("Auth token: #{session[:auth_token]}")
     @fighters = Fighter.all
     @vote = Vote.new
   end
 
   def create
-    @vote = Vote.new(vote_params)
-
+    @vote = Vote.new(vote_params.merge(user_id: params[:vote][:user_id]))  # Get user_id directly from params
     if @vote.save
-      # Assuming you want to redirect to results from the backend itself
       render json: { redirect_to: results_path }, status: :ok
     else
       render json: { errors: @vote.errors.full_messages }, status: :unprocessable_entity

@@ -1,7 +1,7 @@
 class User < ApplicationRecord
-  # Validations can go here later on -lc
+  # Validations can go here later on 
+  has_secure_password
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true
-
   has_many :votes
 end

@@ -13,7 +13,9 @@ class UsersController < ApplicationController
     response = Faraday.post("http://user-api:3000/users", {
       user: {
         name: params[:user][:name],
-        email: params[:user][:email]
+        email: params[:user][:email],
+        password: params[:user][:password],
+        password_confirmation: params[:user][:password_confirmation]
       }
     })
 
@@ -21,12 +23,13 @@ class UsersController < ApplicationController
       user_data = JSON.parse(response.body)
       redirect_to thank_you_path(name: user_data["name"], email: user_data["email"])
     else
-      flash[:alert] = "Registration failed"
+      flash[:alert] = "Registration failed: #{response.body}"
+      @user = OpenStruct.new(params[:user]) # repopulate the form
       render :new
     end
   end
 
-  # Thank you page after successful registration
+  # Thank you page
   def thank_you
     @name = params[:name]
     @email = params[:email]

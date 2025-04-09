@@ -1,0 +1,17 @@
+<h1>Add a new fighter</h1>
+
+<%= form_with url: fighters_path, method: :post, local: true do |form| %>
+  <div>
+    <%= form.label :name %>
+    <%= form.text_field :name, name: "fighter[name]" %>
+  </div>
+
+  <div>
+    <%= form.label :UFC ID %>
+    <%= form.email_field :email, name: "fighter[ufc_id]" %>
+  </div>
+
+  <div>
+    <%= form.submit "Register" %>
+  </div>
+<% end %>
