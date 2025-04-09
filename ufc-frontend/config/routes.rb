@@ -22,5 +22,5 @@ Rails.application.routes.draw do
 
   # Resources for users and fighters
   resources :users, only: [:new, :create]  # Only new and create actions for users
-  resources :fighters, only: [:index]      # Only index action for fighters
+  resources :fighters, only: [:new,:index]      # Only index action for fighters
 end

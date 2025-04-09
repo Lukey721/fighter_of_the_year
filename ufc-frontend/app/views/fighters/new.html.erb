@@ -7,11 +7,11 @@
   </div>
 
   <div>
-    <%= form.label :UFC ID %>
-    <%= form.email_field :email, name: "fighter[ufc_id]" %>
+    <%= form.label :ufc_id %>
+    <%= form.number_field :ufc_id, name: "fighter[ufc_id]" %>
   </div>
 
   <div>
-    <%= form.submit "Register" %>
+    <%= form.submit "Add Fighter" %>
   </div>
 <% end %>

@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
   resources :votes, only: [:create, :index]
   get '/results', to: 'votes#results'
-  resources :fighters, only: [:index]
+  resources :fighters, only: [:create,:index]
 end
