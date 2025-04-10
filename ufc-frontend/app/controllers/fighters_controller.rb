@@ -8,6 +8,17 @@ class FightersController < ApplicationController
     @fighter = OpenStruct.new
   end
 
+  def list # list out fighters
+    response = Faraday.get("http://voting-api:3000/fighters")
+
+    if response.status == 200
+      @fighters = JSON.parse(response.body)
+    else
+      flash[:alert] = "Could not fetch fighters."
+      @fighters = []
+    end
+  end
+
   # Handle the fighter creation by sending data to the voting-api (backend)
   def create
     response = Faraday.post("http://voting-api:3000/fighters", {

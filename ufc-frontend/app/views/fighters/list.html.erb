@@ -1,0 +1,22 @@
+<h1>All Fighters</h1>
+
+<% if @fighters.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>UFC ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @fighters.each do |fighter| %>
+        <tr>
+          <td><%= fighter["name"] %></td>
+          <td><%= fighter["ufc_id"] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No fighters found.</p>
+<% end %>

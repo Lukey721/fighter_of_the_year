@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   # Routes for fighters
   get "/fighters", to: "fighters#new"
   post "/fighters", to: "fighters#create"
+  get '/fighters/list', to: 'fighters#list'
 
   # Resources for users and fighters
   resources :users, only: [:new, :create]  # Only new and create actions for users
