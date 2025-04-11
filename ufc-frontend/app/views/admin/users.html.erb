@@ -1,0 +1,30 @@
+<h1>Manage Users</h1>
+
+<% if @users.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Admin Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td><%= user["name"] %></td>
+          <td><%= user["email"] %></td>
+          <td><%= user["is_admin"] ? "Yes" : "No" %></td>
+          <td>
+          <%= form_with url: update_user_admin_status_path(user['id']), method: :patch, local: true do %>
+           <%= submit_tag user["is_admin"] ? "Remove Admin" : "Make Admin" %>
+          <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No users found.</p>
+<% end %>

@@ -4,6 +4,8 @@ require 'faraday'
 
 class UsersController < ApplicationController
   # Show the registration form to get a user ID
+  # before_action :authenticate_user!
+  # before_action :ensure_admin
   def new
     @user = OpenStruct.new 
   end

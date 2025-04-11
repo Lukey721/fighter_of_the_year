@@ -1,4 +1,10 @@
 class UsersController < ApplicationController
+
+  def index
+    @users = User.all
+    render json: @users
+  end
+  
   def create
     @user = User.new(user_params)
     
@@ -19,6 +25,15 @@ class UsersController < ApplicationController
     else
       render json: { error: 'Invalid credentials' }, status: :unauthorized
     end
+  end
+
+  def update_admin_status
+    user = User.find(params[:id])
+    Rails.logger.info("Toggling admin status for user: #{user.id}") # Debugging log
+
+    user.update(is_admin: !user.is_admin)
+
+    render json: { message: "User admin status updated." }, status: :ok
   end
 
   private

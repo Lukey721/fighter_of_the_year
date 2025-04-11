@@ -11,6 +11,10 @@ Rails.application.routes.draw do
   post "/users", to: "users#create"
   get '/thank_you', to: 'users#thank_you'
 
+  # Admin actions
+  get 'admin/users', to: 'admin#users'
+  patch 'admin/users/:id', to: 'admin#update', as: 'update_user_admin_status'
+
   # Routes for votes and results
   get "/votes", to: "votes#new"
   post "/votes", to: "votes#create"
