@@ -16,7 +16,7 @@
       <h1 style="margin: 0;">UFC Voting App</h1>
       <div>
         <% if session[:user_email] %>
-          <span>Logged in as <strong><%= session[:user_email] %></strong></span>
+          <span>Logged in as <strong><%= session[:user_email] %></strong> Is Admin? <%= session[:is_admin] %></span>
           <%= button_to "Logout", logout_path, method: :delete, style: "margin-left: 1rem;" %>
         <% else %>
           <%= link_to "Login", login_path, style: "margin-right: 1rem;" %>
@@ -52,6 +52,14 @@
       <p>
         Want to see the Fighters Nominated? 
         <%= link_to "View Fighters", fighters_list_path, style: "text-decoration: underline; color:rgb(0, 255, 255);" %>
+      </p>
+      <p>
+        Admin Only Functions:
+       <% if admin_user? %>
+        <%= link_to "Admin Dashboard", admin_users_path %>
+        <%= link_to "Fighter Dashboard", fighters_path %>
+
+       <% end %>
       </p>
     </footer>
   </body>

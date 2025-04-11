@@ -2,8 +2,9 @@ require 'json'
 require 'faraday'
 
 class AdminController < ApplicationController
-  #before_action :authenticate_user!
-  #before_action :ensure_admin
+
+ before_action :require_admin
+
  def users
   response = Faraday.get("http://user-api:3000/users")
 
@@ -28,14 +29,5 @@ class AdminController < ApplicationController
     flash[:alert] = "Failed to update admin status."
     redirect_to admin_users_path
   end
-end
-
-private
-#remove checks while testing
- #def ensure_admin
- # unless current_user && current_user["is_admin"]
-  #  flash[:alert] = "You must be an admin to view this page."
-   # redirect_to root_path
-  #end
- #end
+ end
 end

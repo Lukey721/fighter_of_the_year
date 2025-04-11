@@ -18,7 +18,8 @@ class FightersController < ApplicationController
       @fighters = []
     end
   end
-
+  
+  before_action :require_admin
   # Handle the fighter creation by sending data to the voting-api (backend)
   def create
     response = Faraday.post("http://voting-api:3000/fighters", {

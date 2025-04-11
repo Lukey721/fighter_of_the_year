@@ -17,6 +17,7 @@ class SessionsController < ApplicationController
       session[:auth_token] = user['token']
       session[:user_email] = user['email']
       session[:user_id] = user['id']
+      session[:is_admin] = user["is_admin"]
       redirect_to root_path, notice: "Logged in as #{user['email']}"
     else
       flash.now[:alert] = "Invalid email or password"
