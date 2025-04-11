@@ -11,8 +11,18 @@ class ApplicationController < ActionController::Base
     ) if session[:user_id]
   end
 
+  def user_signed_in?
+    current_user.present?
+  end
+
   def admin_user?
     current_user&.is_admin
+  end
+
+  def require_login
+    unless user_signed_in?
+      redirect_to login_path, alert: "You must be logged in to access this page."
+    end
   end
 
   def require_admin

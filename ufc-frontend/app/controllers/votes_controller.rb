@@ -2,7 +2,8 @@ require 'json'
 require 'faraday'
 
 class VotesController < ApplicationController
-  before_action :set_auth_header
+  #before_action :set_auth_header
+  before_action :require_login
 
   def new
     response = Faraday.get("http://voting-api:3000/fighters") do |req|
@@ -60,8 +61,8 @@ class VotesController < ApplicationController
 
   private
 
-  def set_auth_header
-    token = session[:auth_token]
-    @auth_header = "Bearer #{token}" if token.present?
-  end
+  #def set_auth_header
+  #  token = session[:auth_token]
+   # @auth_header = "Bearer #{token}" if token.present?
+  #end
 end
