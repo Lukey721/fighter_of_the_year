@@ -31,17 +31,20 @@ class VotesController < ApplicationController
       }.to_json
     end
   
-    if response.status == 200 && response.body.present?
-      begin
-        JSON.parse(response.body)
+    begin
+      body = JSON.parse(response.body) if response.body.present?
+  
+      if response.status == 200
         redirect_to results_path, notice: "Vote submitted successfully!"
-      rescue JSON::ParserError => e
-        Rails.logger.error("Failed to parse response: #{e.message}")
-        flash[:alert] = "Something went wrong. Please try again."
+      elsif response.status == 403 && body["redirect_to"]
+        redirect_to body["redirect_to"], alert: body["error"]
+      else
+        flash[:alert] = body["error"] || "Vote submission failed."
         render :new
       end
-    else
-      flash[:alert] = "Vote submission failed: #{response.body}"
+    rescue JSON::ParserError => e
+      Rails.logger.error("Failed to parse response: #{e.message}")
+      flash[:alert] = "Unexpected error occurred. Please try again."
       render :new
     end
   end

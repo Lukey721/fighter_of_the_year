@@ -1,0 +1,12 @@
+<h1>Welcome to the UFC Voting App</h1>
+
+<% if @fighters.any? %>
+  <h2>Fighters Nominated 2025</h2>
+  <ul>
+    <% @fighters.each do |fighter| %>
+      <li><%= fighter["name"] %></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No fighters available at the moment.</p>
+<% end %>
