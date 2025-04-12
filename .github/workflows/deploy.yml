@@ -26,18 +26,18 @@ jobs:
       with:
         context: ./user-api
         push: true
-        tags: yourdockerhubname/user-api:latest
+        tags: lukey721/user-api:latest
 
     - name: Build and push voting-api
       uses: docker/build-push-action@v5
       with:
         context: ./voting-api
         push: true
-        tags: yourdockerhubname/voting-api:latest
+        tags: lukey721/voting-api:latest
 
     - name: Build and push frontend
       uses: docker/build-push-action@v5
       with:
         context: ./ufc-frontend
         push: true
-        tags: yourdockerhubname/frontend:latest
+        tags: lukey721/frontend:latest
