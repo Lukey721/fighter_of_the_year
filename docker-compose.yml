@@ -3,6 +3,7 @@ services:
   user-api:
     build:
       context: ./user-api
+    image: lukey721/user-api:latest
     container_name: user-api
     ports:
       - "3001:3000"  # Expose user-api on port 3001 on the host machine
@@ -14,6 +15,7 @@ services:
   voting-api:
     build:
       context: ./voting-api
+    image: lukey721/voting-api:latest
     container_name: voting-api
     ports:
       - "3002:3000"  # Expose voting-api on port 3002 on the host machine
@@ -25,7 +27,7 @@ services:
       - user-api
 
   db:
-    image: postgres:latest  # Use the latest PostgreSQL image
+    image: postgres:latest  # latest PostgreSQL image
     container_name: postgres-db
     environment:
       POSTGRES_USER: postgres        # PostgreSQL username
@@ -38,7 +40,8 @@ services:
 
   frontend:
     build:
-      context: ./ufc-frontend  # Path to your frontend Rails app
+      context: ./ufc-frontend  # Path the frontend Rails app
+    image: lukey721/frontend:latest # check if this should be ufc-frontend
     container_name: frontend
     ports:
       - "3000:3000"  # Expose frontend on port 3000
