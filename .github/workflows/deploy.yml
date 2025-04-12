@@ -24,20 +24,20 @@ jobs:
     - name: Build and push user-api
       uses: docker/build-push-action@v5
       with:
-        context: ./user-api
+        context: ./${{ secrets.USER_CONTEXT }}
         push: true
-        tags: lukey721/user-api:latest
+        tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
 
     - name: Build and push voting-api
       uses: docker/build-push-action@v5
       with:
-        context: ./voting-api
+        context: ./${{ secrets.VOTING_CONTEXT }}
         push: true
-        tags: lukey721/voting-api:latest
+        tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest
 
     - name: Build and push frontend
       uses: docker/build-push-action@v5
       with:
-        context: ./ufc-frontend
+        context: ./${{ secrets.FRONTEND_CONTEXT }}
         push: true
-        tags: lukey721/frontend:latest #c
+        tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:latest
