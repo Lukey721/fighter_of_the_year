@@ -14,8 +14,11 @@ class VotesController < ApplicationController
     # Check if the user has already voted
     existing_vote = Vote.find_by(user_id: user_id)
     if existing_vote
-     render json: { error: "You have already voted." }, status: :forbidden
-     return
+      render json: {
+        error: "You have already voted.",
+        redirect_to: results_path
+      }, status: :forbidden
+      return
     end
 
     @vote = Vote.new(vote_params.merge(user_id: params[:vote][:user_id]))  # Get user_id directly from params
