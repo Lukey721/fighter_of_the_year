@@ -40,4 +40,4 @@ jobs:
       with:
         context: ./ufc-frontend
         push: true
-        tags: lukey721/frontend:latest
+        tags: lukey721/frontend:latest #c
