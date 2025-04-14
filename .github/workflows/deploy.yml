@@ -27,6 +27,12 @@ jobs:
         context: ./${{ secrets.USER_CONTEXT }}
         push: false # wont push yet, security checks first
         tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
+    
+    # Install Docker Snyk
+    - name: Install Docker Scan
+      run: |
+        curl -sSL https://get.docker.com/ | sh
+        docker version
 
     # Scan the user-api Docker image for vulnerabilities
     - name: Scan user-api Docker image for vulnerabilities
