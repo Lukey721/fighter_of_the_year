@@ -39,7 +39,7 @@ jobs:
 
     # Upload the Trivy scan report as an artifact
     - name: Upload Trivy scan report as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: user-api-trivy-report
         path: user-api-trivy-report.json
