@@ -45,6 +45,15 @@ jobs:
         name: user-api-trivy-report
         path: user-api-trivy-report.json
 
+     # Tag the built image locally
+    - name: Tag user-api image locally
+      run: |
+       docker tag ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
+
+    # Push the user-api image to Docker Hub
+    - name: Push user-api Docker image to Docker Hub
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
+
     - name: Build and push voting-api
       uses: docker/build-push-action@v5
       with:
@@ -58,9 +67,3 @@ jobs:
         context: ./${{ secrets.FRONTEND_CONTEXT }}
         push: true 
         tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:latest
-
-    # Push the checked image to Docker Hub
-    - name: Push user-api Docker image to Docker Hub
-      run: |
-        docker tag ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
