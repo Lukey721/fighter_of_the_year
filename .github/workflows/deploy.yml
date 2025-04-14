@@ -22,6 +22,7 @@ jobs:
       uses: docker/setup-buildx-action@v2
 
     - name: Build user-api
+      id: build_user_api # allow image to be found for push to docker hub
       uses: docker/build-push-action@v5
       with:
         context: ./${{ secrets.USER_CONTEXT }}
