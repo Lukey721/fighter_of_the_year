@@ -21,13 +21,11 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
+    # Build user-api image (no push yet)
     - name: Build user-api
-      id: build_user_api # allow image to be found for push to docker hub
-      uses: docker/build-push-action@v5
-      with:
-        context: ./${{ secrets.USER_CONTEXT }}
-        push: false # wont push yet, security checks first
-        tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
+      id: build_user_api
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest ./${{ secrets.USER_CONTEXT }}
     
     - name: Install Trivy
       run: |
@@ -44,11 +42,6 @@ jobs:
       with:
         name: user-api-trivy-report
         path: user-api-trivy-report.json
-
-     # Tag the built image locally
-    - name: Tag user-api image locally
-      run: |
-       docker tag ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
 
     # Push the user-api image to Docker Hub
     - name: Push user-api Docker image to Docker Hub
