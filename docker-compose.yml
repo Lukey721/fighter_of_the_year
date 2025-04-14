@@ -38,13 +38,28 @@ services:
     volumes:
       - ./db_data:/var/lib/postgresql/data  # Mount a volume to persist data
 
-  frontend:
+  # Frontend services for blue-green deployment
+  frontend-blue:
     build:
-      context: ./ufc-frontend  # Path the frontend Rails app
-    image: lukey721/frontend:latest # check if this should be ufc-frontend
-    container_name: frontend
+      context: ./ufc-frontend
+    image: lukey721/frontend:blue
+    container_name: frontend-blue
     ports:
-      - "3000:3000"  # Expose frontend on port 3000
+      - "3000:3000"
+    depends_on:
+      - user-api
+      - voting-api
+    environment:
+      - USER_API_URL=http://user-api:3000
+      - VOTING_API_URL=http://voting-api:3000
+
+  frontend-green:
+    build:
+      context: ./ufc-frontend
+    image: lukey721/frontend:green
+    container_name: frontend-green
+    ports:
+      - "4000:3000"
     depends_on:
       - user-api
       - voting-api
