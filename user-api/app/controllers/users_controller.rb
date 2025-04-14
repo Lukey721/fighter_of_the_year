@@ -26,14 +26,29 @@ class UsersController < ApplicationController
       render json: { error: 'Invalid credentials' }, status: :unauthorized
     end
   end
-
+  
+ # To change user status in admin panel
   def update_admin_status
     user = User.find(params[:id])
     Rails.logger.info("Toggling admin status for user: #{user.id}") # Debugging log
 
-    user.update(is_admin: !user.is_admin)
+    if user.update_column(:is_admin, !user.is_admin)
+      render json: { message: "User admin status updated." }, status: :ok
+    else
+      render json: { error: "Failed to update admin status." }, status: :unprocessable_entity
+    end
+  end
 
-    render json: { message: "User admin status updated." }, status: :ok
+  # To delete users from Admin panel
+  def destroy
+    user = User.find_by(id: params[:id])
+  
+    if user
+      user.destroy
+      render json: { message: "User deleted successfully." }, status: :ok
+    else
+      render json: { error: "User not found." }, status: :not_found
+    end
   end
 
   private

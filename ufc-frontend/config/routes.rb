@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   # Admin actions
   get 'admin/users', to: 'admin#users'
   patch 'admin/users/:id', to: 'admin#update', as: 'update_user_admin_status'
+  delete 'admin/users/:id', to: 'admin#destroy', as: 'delete_user'
 
   # Routes for votes and results
   get "/votes", to: "votes#new"

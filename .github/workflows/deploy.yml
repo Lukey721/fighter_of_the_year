@@ -21,23 +21,31 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Build and push user-api
+    - name: Build user-api
       uses: docker/build-push-action@v5
       with:
         context: ./${{ secrets.USER_CONTEXT }}
-        push: true
+        push: false # wont push yet, security checks first
         tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
+
+    # Scan the user-api Docker image for vulnerabilities
+    - name: Scan user-api Docker image for vulnerabilities
+      run: docker scan ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
 
     - name: Build and push voting-api
       uses: docker/build-push-action@v5
       with:
         context: ./${{ secrets.VOTING_CONTEXT }}
-        push: true
+        push: true 
         tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest
 
     - name: Build and push frontend
       uses: docker/build-push-action@v5
       with:
         context: ./${{ secrets.FRONTEND_CONTEXT }}
-        push: true
+        push: true 
         tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:latest
+
+    # Push the checked image to Docker Hub
+    - name: Push user-api Docker image to Docker Hub
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest

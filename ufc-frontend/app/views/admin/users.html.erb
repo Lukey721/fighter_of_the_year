@@ -17,8 +17,11 @@
           <td><%= user["email"] %></td>
           <td><%= user["is_admin"] ? "Yes" : "No" %></td>
           <td>
-          <%= form_with url: update_user_admin_status_path(user['id']), method: :patch, local: true do %>
+          <%= form_with url: update_user_admin_status_path(user['id']), method: :patch, local: true, data: { turbo: false } do %>
            <%= submit_tag user["is_admin"] ? "Remove Admin" : "Make Admin" %>
+          <% end %>
+          <%= form_with url: delete_user_path(user['id']), method: :delete, local: true, data: { confirm: "Are you sure?", turbo: false }, class: "btn btn-danger" do %>
+           <%= submit_tag "Delete User" %>
           <% end %>
           </td>
         </tr>

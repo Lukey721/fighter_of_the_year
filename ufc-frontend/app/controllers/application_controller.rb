@@ -1,3 +1,4 @@
+require 'ostruct'
 class ApplicationController < ActionController::Base
   helper_method :current_user, :admin_user?
 

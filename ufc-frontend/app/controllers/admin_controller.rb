@@ -30,4 +30,18 @@ class AdminController < ApplicationController
     redirect_to admin_users_path
   end
  end
+
+ def destroy
+  user_id = params[:id]
+
+  response = Faraday.delete("http://user-api:3000/users/#{user_id}")
+  
+  if response.success?
+    redirect_to admin_users_path, notice: "User deleted successfully."
+  else
+    flash[:alert] = "Failed to delete user."
+    redirect_to admin_users_path
+  end
+ end
+
 end
