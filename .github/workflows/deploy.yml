@@ -26,7 +26,20 @@ jobs:
       id: build_user_api
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest ./${{ secrets.USER_CONTEXT }}
+
+    # Build voting-api image (no push yet)
+    - name: Build voting-api
+      id: build_voting_api
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest ./${{ secrets.VOTING_CONTEXT }}
+
+    # Build frontend image (no push yet)
+    - name: Build frontend
+      id: build_frontend
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:latest ./${{ secrets.FRONTEND_CONTEXT }}
     
+    # Isntall Trivy for vulnerability scanning
     - name: Install Trivy
       run: |
         curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.22.0/trivy_0.22.0_Linux-64bit.tar.gz | tar -xzv
@@ -36,27 +49,43 @@ jobs:
     - name: Scan Docker image with Trivy
       run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest > user-api-trivy-report.json
 
-    # Upload the Trivy scan report as an artifact
-    - name: Upload Trivy scan report as artifact
+    # Upload the user Trivy scan report as an artifact
+    - name: Upload Trivy scan report as artifact - User api
       uses: actions/upload-artifact@v4
       with:
         name: user-api-trivy-report
         path: user-api-trivy-report.json
 
+    # Scan the voting-api Docker image for vulnerabilities
+    - name: Scan Docker image with Trivy
+      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest > voting-api-trivy-report.json
+
+    # Upload the voting Trivy scan report as an artifact
+    - name: Upload Trivy scan report as artifact - Voting api
+      uses: actions/upload-artifact@v4
+      with:
+        name: voting-api-trivy-report
+        path: voting-api-trivy-report.json
+
+    # Scan the frontend Docker image for vulnerabilities
+    - name: Scan Docker image with Trivy
+      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:latest > frontend-trivy-report.json
+
+    # Upload the frontend Trivy scan report as an artifact
+    - name: Upload Trivy scan report as artifact - Frontend
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-trivy-report
+        path: frontend-trivy-report.json
+
     # Push the user-api image to Docker Hub
     - name: Push user-api Docker image to Docker Hub
       run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
 
-    - name: Build and push voting-api
-      uses: docker/build-push-action@v5
-      with:
-        context: ./${{ secrets.VOTING_CONTEXT }}
-        push: true 
-        tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest
+    # Push the voting-api image to Docker Hub
+    - name: Push voting-api Docker image to Docker Hub
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest
 
-    - name: Build and push frontend
-      uses: docker/build-push-action@v5
-      with:
-        context: ./${{ secrets.FRONTEND_CONTEXT }}
-        push: true 
-        tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:latest
+    # Push the frontend image to Docker Hub
+    - name: Push frontend Docker image to Docker Hub
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:latest
