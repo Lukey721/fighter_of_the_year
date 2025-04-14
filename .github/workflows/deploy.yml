@@ -58,7 +58,7 @@ jobs:
 
     # Scan the voting-api Docker image for vulnerabilities
     - name: Scan Docker image with Trivy
-      run: trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest > voting-api-trivy-report.json
+      run: trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest
 
     # Upload the voting Trivy scan report as an artifact
     - name: Upload Trivy scan report as artifact - Voting api
