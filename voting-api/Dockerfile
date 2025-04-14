@@ -1,16 +1,13 @@
 # Ruby setup
-FROM ruby:3.2.2-slim-buster
+FROM ruby:3.2.2
 
 # Install dependencies
-RUN apt-get update -qq && apt-get upgrade -y \
-  && apt-get install -y \
+RUN apt-get update -qq && apt-get install -y \
   nodejs \
   yarn \
   build-essential \
   libpq-dev \
-  libnss3 \
-  libgconf-2-4 \
-  ca-certificates \
+  libnss3 libgconf-2-4\
   && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory in the container
@@ -22,9 +19,6 @@ RUN bundle install
 
 # Copy the rest of the application code
 COPY . ./
-
-# Set environment variables (adjust RAILS_MASTER_KEY if necessar
-
 
 
 # Expose the port the app runs on
