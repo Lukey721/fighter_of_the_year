@@ -1,13 +1,16 @@
 # Ruby setup
-FROM ruby:3.2.2
+FROM ruby:3.2.2-slim-buster
 
 # Install dependencies
-RUN apt-get update -qq && apt-get install -y \
+RUN apt-get update -qq && apt-get upgrade -y \
+  && apt-get install -y \
   nodejs \
   yarn \
   build-essential \
   libpq-dev \
-  libnss3 libgconf-2-4\
+  libnss3 \
+  libgconf-2-4 \
+  ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory in the container
