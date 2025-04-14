@@ -28,15 +28,14 @@ jobs:
         push: false # wont push yet, security checks first
         tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
     
-    # Install Docker Snyk
-    - name: Install Docker Scan
+    - name: Install Trivy
       run: |
-        curl -sSL https://get.docker.com/ | sh
-        docker version
+        curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.22.0/trivy_0.22.0_Linux-64bit.tar.gz | tar -xzv
+        sudo mv trivy /usr/local/bin/
 
     # Scan the user-api Docker image for vulnerabilities
-    - name: Scan user-api Docker image for vulnerabilities
-      run: docker scan ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
+    - name: Scan Docker image with Trivy
+      run: trivy image --exit-code 1 --no-progress ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
 
     - name: Build and push voting-api
       uses: docker/build-push-action@v5
