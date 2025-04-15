@@ -32,13 +32,15 @@ jobs:
           sleep 5
         done
 
-    - name: Backup PostgreSQL Database
-      env:
-        PGPASSWORD: password
+    - name: Run backup inside of the container
       run: |
         TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
         mkdir -p backups
-        pg_dump -h localhost -U postgres -d user_api_development > backups/backup_$TIMESTAMP.sql
+        docker run --rm \
+            --network host \
+            -e PGPASSWORD=password \
+            postgres:17.4 \
+            pg_dump -h localhost -U postgres -d user_api_development > backups/backup_$TIMESTAMP.sql
 
     - name: Archive backup
       run: tar -czvf db_backup.tar.gz backups/
