@@ -38,7 +38,7 @@
 .env
 
 # Ignore dockerfiles for the moment
-/github/workflows/rubyonrails.yml
+.github/workflows/rubyonrails.yml
 
 # Ignore Local .terraform directories
 .terraform/
@@ -46,3 +46,7 @@
 # Terraform state files (sensitive data)
 *.tfstate
 *.tfstate.backup
+# dont back up database back up files
+/db_backups
+
+.github\workflows\db-backup.yml
