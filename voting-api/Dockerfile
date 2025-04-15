@@ -26,5 +26,5 @@ EXPOSE 3000
 
 # Set the entry point for the application
 #CMD ["rails", "server", "-b", "0.0.0.0"]
-#CMD ["bundle", "exec", "rails", "s", "-b", "0.0.0.0"]
-CMD ["sh", "-c", "bundle exec rails db:migrate && bundle exec rails db:seed && bundle exec rails s -b 0.0.0.0"]
+CMD ["bundle", "exec", "rails", "s", "-b", "0.0.0.0"]
+#CMD ["sh", "-c", "bundle exec rails db:migrate && bundle exec rails db:seed && bundle exec rails s -b 0.0.0.0"]

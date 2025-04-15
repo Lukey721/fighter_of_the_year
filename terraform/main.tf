@@ -6,37 +6,13 @@ terraform {
     }
   }
 }
-
 provider "docker" {}
 
-resource "docker_network" "app_network" {
-  name = "ufc_microservices_network"
-}
-
-# Database (PostgreSQL)
-resource "docker_image" "postgres" {
-  name = "postgres:latest"
-}
-
-resource "docker_container" "postgres_db" {
-  name  = "postgres-db"
-  image = docker_image.postgres.name
-  env = [
-    "POSTGRES_USER=${var.db_user}",
-    "POSTGRES_PASSWORD=${var.db_password}",
-    "POSTGRES_DB=${var.db_name}"
-  ]
-  ports {
-    internal = 5432
-    external = 5433
-  }
-  volumes {
-  container_path = "/var/lib/postgresql/data"
-  host_path      = "${abspath(path.module)}/db_data"
-  }
-  networks_advanced {
-    name = docker_network.app_network.name
-  }
+module "core_infra" {
+  source      = "./modules/core_infra"
+  db_user     = var.db_user
+  db_password = var.db_password
+  db_name     = var.db_name
 }
 
 # User API
@@ -54,9 +30,9 @@ resource "docker_container" "user_api" {
     internal = 3000
     external = 3001
   }
-  depends_on = [docker_container.postgres_db]
+  depends_on = [module.core_infra]
   networks_advanced {
-    name = docker_network.app_network.name
+    name = module.core_infra.app_network_name
   }
 }
 
@@ -76,9 +52,9 @@ resource "docker_container" "voting_api" {
     internal = 3000
     external = 3002
   }
-  depends_on = [docker_container.postgres_db, docker_container.user_api]
+  depends_on = [module.core_infra, docker_container.user_api]
   networks_advanced {
-    name = docker_network.app_network.name
+    name = module.core_infra.app_network_name
   }
 }
 
@@ -102,7 +78,7 @@ resource "docker_container" "frontend_blue" {
     external = 3005
   }
   networks_advanced {
-    name = docker_network.app_network.name
+    name = module.core_infra.app_network_name
   }
   depends_on = [docker_container.user_api, docker_container.voting_api]
 }
@@ -120,7 +96,7 @@ resource "docker_container" "frontend_green" {
     external = 3006
   }
   networks_advanced {
-    name = docker_network.app_network.name
+    name = module.core_infra.app_network_name
   }
   depends_on = [docker_container.user_api, docker_container.voting_api]
 }
