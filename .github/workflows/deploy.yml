@@ -21,29 +21,33 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
+    - name: Set version tag using timestamp
+      id: vars
+      run: echo "VERSION=$(date +%s)" >> "$GITHUB_ENV"
+
     # Build user-api image (no push yet)
     - name: Build user-api
       id: build_user_api
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest ./${{ secrets.USER_CONTEXT }}
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }} ./${{ secrets.USER_CONTEXT }}
 
     # Build voting-api image (no push yet)
     - name: Build voting-api
       id: build_voting_api
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest ./${{ secrets.VOTING_CONTEXT }}
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }} ./${{ secrets.VOTING_CONTEXT }}
 
     # Build frontend image (no push yet)
     - name: Build frontend-blue
       id: build_frontend_blue
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue ./${{ secrets.FRONTEND_CONTEXT }}
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }} ./${{ secrets.FRONTEND_CONTEXT }}
 
     # Build frontend image (no push yet)
     - name: Build frontend-green
       id: build_frontend_green
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green ./${{ secrets.FRONTEND_CONTEXT }}
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }} ./${{ secrets.FRONTEND_CONTEXT }}
 
     # Isntall Trivy for vulnerability scanning
     - name: Install Trivy for vulnerability scanning
@@ -53,7 +57,7 @@ jobs:
 
     # Scan the user-api Docker image for vulnerabilities
     - name: Scan Docker image with Trivy - User api
-      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest > user-api-trivy-report.json
+      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }} > user-api-trivy-report.json
 
     # Upload the user Trivy scan report as an artifact
     - name: Upload Trivy scan report as artifact - User api
@@ -64,7 +68,7 @@ jobs:
 
     # Scan the voting-api Docker image for vulnerabilities
     - name: Scan Docker image with Trivy - Voting api
-      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest > voting-api-trivy-report.json
+      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }} > voting-api-trivy-report.json
 
     # Upload the voting Trivy scan report as an artifact
     - name: Upload Trivy scan report as artifact - Voting api
@@ -75,7 +79,7 @@ jobs:
 
     # Scan the frontend Docker image for vulnerabilities
     - name: Scan Docker image with Trivy - Frontend blue
-      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue > frontend-blue-trivy-report.json
+      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }} > frontend-blue-trivy-report.json
 
     # Upload the frontend Trivy scan report as an artifact
     - name: Upload Trivy scan report as artifact - Frontend blue
@@ -86,7 +90,7 @@ jobs:
 
     # Scan the frontend Docker image for vulnerabilities
     - name: Scan Docker image with Trivy - Frontend green
-      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green > frontend-green-trivy-report.json
+      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }} > frontend-green-trivy-report.json
 
     # Upload the frontend Trivy scan report as an artifact
     - name: Upload Trivy scan report as artifact - Frontend green
@@ -97,16 +101,16 @@ jobs:
 
     # Push the user-api image to Docker Hub
     - name: Push user-api Docker image to Docker Hub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:latest
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }}
 
     # Push the voting-api image to Docker Hub
     - name: Push voting-api Docker image to Docker Hub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:latest
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }}
 
     # Push the blue frontend image to Docker Hub
     - name: Push frontend blue Docker image to Docker Hub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }}
 
     # Push the green frontend image to Docker Hub
     - name: Push frontend green Docker image to Docker Hub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}

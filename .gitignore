@@ -41,11 +41,19 @@
 .github/workflows/rubyonrails.yml
 
 # Ignore Local .terraform directories
-.terraform/
-
-# Terraform state files (sensitive data)
+# === Terraform ===
 *.tfstate
 *.tfstate.backup
+.terraform/
+terraform.tfvars
+terraform.tfvars.json
+.crash/
+*.log
+override.tf
+override.tf.json
+.plan
+
+
 # dont back up database back up files
 /db_backups
 
