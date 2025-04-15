@@ -1,0 +1,50 @@
+name: PostgreSQL Backup
+
+on:
+  schedule:
+    - cron: '0 17 * * *'  # run at 6pm UTC every day
+  workflow_dispatch:
+
+jobs:
+  backup-db:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: user_api_development
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+    - name: Wait for PostgreSQL
+      run: |
+        until pg_isready -h localhost -p 5432 -U postgres; do
+          echo "Wait for PostgreSQL..."
+          sleep 5
+        done
+
+    - name: Backup PostgreSQL Database
+      env:
+        PGPASSWORD: password
+      run: |
+        TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+        mkdir -p backups
+        pg_dump -h localhost -U postgres -d user_api_development > backups/backup_$TIMESTAMP.sql
+
+    - name: Archive backup
+      run: tar -czvf db_backup.tar.gz backups/
+
+    - name: Upload backup as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: postgres-db-backup
+        path: db_backup.tar.gz
