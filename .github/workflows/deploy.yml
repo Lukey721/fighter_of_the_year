@@ -21,6 +21,15 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
+    - name: Setup rclone
+      uses: AnimMouse/setup-rclone@v1
+      with:
+        rclone_config: ${{ secrets.RCLONE_CONFIG }}
+        disable_base64: true
+
+    - name: Backup to Google Drive
+      run: rclone copy ./db_backups remote:backup-folder --progress
+
     - name: Set version tag using timestamp
       id: vars
       run: echo "VERSION=$(date +%s)" >> "$GITHUB_ENV"
