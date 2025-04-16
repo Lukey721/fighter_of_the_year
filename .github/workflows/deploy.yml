@@ -25,6 +25,15 @@ jobs:
       id: vars
       run: echo "VERSION=$(date +%s)" >> "$GITHUB_ENV"
 
+    - name: Save version tag to artifact
+      run: echo "${{ env.VERSION }}" > version.txt
+    
+    - name: Upload version artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: version-tag
+        path: version.txt
+
     # Build user-api image (no push yet)
     - name: Build user-api
       id: build_user_api
@@ -128,6 +137,14 @@ jobs:
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
+    
+    - name: Download version artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: version-tag
+    
+    - name: Load VERSION env
+      run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
 
     - name: Generate terraform.tfvars
       run: |
