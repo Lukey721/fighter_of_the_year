@@ -142,10 +142,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: version-tag
-    
-    - name: Load VERSION env
+        path: version-tag
+
+    - name: Extract version.txt
       run: |
-        echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+          mv version-tag/version.txt
+          echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
 
     - name: Verify loaded VERSION
       run: |
