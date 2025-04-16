@@ -144,7 +144,12 @@ jobs:
         name: version-tag
     
     - name: Load VERSION env
-      run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+      run: |
+        echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+
+    - name: Verify loaded VERSION
+      run: |
+        echo "Loaded VERSION is: $VERSION"
 
     - name: Generate terraform.tfvars
       run: |
