@@ -147,10 +147,8 @@ jobs:
     - name: List files
       run: ls -la
 
-    - name: Extract version.txt
-      run: |
-          mv version-tag/version.txt
-          echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+    - name: Load VERSION from file
+      run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
 
     - name: Verify loaded VERSION
       run: |
