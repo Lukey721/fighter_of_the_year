@@ -114,3 +114,33 @@ jobs:
     # Push the green frontend image to Docker Hub
     - name: Push frontend green Docker image to Docker Hub
       run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}
+
+  terraform-deploy:
+    runs-on: ubuntu-latest
+    needs: docker-build-push
+    defaults:
+      run:
+        working-directory: ./terraform
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Generate terraform.tfvars
+      run: |
+        echo 'user_api_image      = "${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }}"' > terraform.tfvars
+        echo 'voting_api_image    = "${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }}"' >> terraform.tfvars
+        echo 'frontend_blue_image = "${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }}"' >> terraform.tfvars
+        echo 'frontend_green_image = "${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}"' >> terraform.tfvars
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -var-file="terraform.tfvars"
