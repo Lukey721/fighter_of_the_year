@@ -135,7 +135,7 @@ jobs:
         echo "frontend_green_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
 
     - name: Print .tfvars
-      run: cat terraform.tfvars
+      run: cat ./terraform/terraform.tfvars
 
     - name: Terraform Init
       working-directory: ./terraform
