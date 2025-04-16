@@ -142,7 +142,10 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: version-tag
-        path: version-tag
+        path: ./
+
+    - name: List files
+      run: ls -la
 
     - name: Extract version.txt
       run: |
