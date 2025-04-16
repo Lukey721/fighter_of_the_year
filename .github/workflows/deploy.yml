@@ -136,6 +136,9 @@ jobs:
         echo "frontend_blue_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }}\"" >> terraform.tfvars
         echo "frontend_green_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}\"" >> terraform.tfvars
 
+    - name: Print .tfvars
+      run: cat terraform.tfvars
+
     - name: Terraform Init
       run: terraform init
 
