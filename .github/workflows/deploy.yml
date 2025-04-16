@@ -129,10 +129,10 @@ jobs:
 
     - name: Generate terraform.tfvars
       run: |
-        echo "user_api_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }}\"" > terraform.tfvars
-        echo "voting_api_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }}\"" >> terraform.tfvars
-        echo "frontend_blue_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }}\"" >> terraform.tfvars
-        echo "frontend_green_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}\"" >> terraform.tfvars
+        echo "user_api_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }}\"" > ./terraform/terraform.tfvars
+        echo "voting_api_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
+        echo "frontend_blue_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
+        echo "frontend_green_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
 
     - name: Print .tfvars
       run: cat terraform.tfvars
