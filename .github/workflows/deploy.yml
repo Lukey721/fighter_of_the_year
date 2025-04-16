@@ -28,7 +28,7 @@ jobs:
         disable_base64: true
 
     - name: Backup to Google Drive
-      run: rclone copy ./db_backups remote:backup-folder --progress
+      run: rclone copy ./db_backups google_drive:backup-folder --progress
 
     - name: Set version tag using timestamp
       id: vars
