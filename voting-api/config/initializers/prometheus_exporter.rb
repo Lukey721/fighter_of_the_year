@@ -1,6 +1,8 @@
 require 'prometheus_exporter/middleware'
+require 'prometheus_exporter/server'
 
-# Attach middleware for automatic request metrics
 Rails.application.middleware.unshift PrometheusExporter::Middleware
 
-puts "[PrometheusExporter] Middleware initialized"
+# ✅ CORRECT usage of exporter server
+server = PrometheusExporter::Server::WebServer.new bind: '0.0.0.0', port: 9395
+server.start

@@ -80,6 +80,10 @@ resource "docker_container" "user_api" {
     internal = 3000
     external = 3001
   }
+  ports {
+    internal = 9394
+    external = 9394
+  }
   depends_on = [module.core_infra]
   networks_advanced {
     name = module.core_infra.app_network_name
@@ -101,6 +105,10 @@ resource "docker_container" "voting_api" {
   ports {
     internal = 3000
     external = 3002
+  }
+  ports {
+    internal = 9395
+    external = 9395
   }
   depends_on = [module.core_infra, docker_container.user_api]
   networks_advanced {
