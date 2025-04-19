@@ -21,6 +21,26 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
+    - name: Create PostgreSQL Backup
+      env:
+        PGPASSWORD: password
+      run: |
+        mkdir -p db_backups
+        docker run --rm \
+          --network host \
+          -e PGPASSWORD=$PGPASSWORD \
+          postgres:17.4 \
+          pg_dump -h localhost -U postgres -d user_api_development > db_backups/backup.sql
+    
+    - name: Setup Rclone
+      uses: AnimMouse/setup-rclone@v1
+      with:
+        rclone_config: ${{ secrets.RCLONE_CONFIG }}
+        disable_base64: true
+    
+    - name: Upload to Google Drive with Rclone
+      run: rclone copy db_backups google_drive:backup-folder --progress
+
       # come back to this later
     #- name: Setup rclone
     #  uses: AnimMouse/setup-rclone@v1
