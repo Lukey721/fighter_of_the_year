@@ -27,3 +27,9 @@ variable "frontend_blue_image" {
 variable "frontend_green_image" {
   type = string
 }
+
+variable "project_root" {
+  type        = string
+  description = "Absolute path to the project root "
+  default     = "C:/Users/lukey/OneDrive - Technological University Dublin/Code/College Projects/ufc-voting-microservices"
+}

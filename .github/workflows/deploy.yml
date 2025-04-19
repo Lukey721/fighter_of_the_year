@@ -7,20 +7,6 @@ on:
 jobs:
   docker-build-push:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17.4
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: user_api_development
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
     - name: Checkout code
@@ -34,47 +20,6 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        for i in {1..10}; do
-          pg_isready -h localhost -U postgres && break
-          echo "Waiting for PostgreSQL to be ready..."
-          sleep 5
-        done
-      env:
-        PGPASSWORD: password
-
-    - name: Create PostgreSQL Backup
-      env:
-        PGPASSWORD: password
-      run: |
-        TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-        mkdir -p db_backups
-        docker run --rm \
-          --network host \
-          -e PGPASSWORD=password \
-          postgres:17.4 \
-          pg_dump -h localhost -U postgres -d user_api_development > db_backups/backup_$TIMESTAMP.sql
-
-    - name: Setup Rclone
-      uses: AnimMouse/setup-rclone@v1
-      with:
-        rclone_config: ${{ secrets.RCLONE_CONFIG }}
-        disable_base64: true
-
-    - name: Upload to Google Drive with Rclone
-      run: rclone copy db_backups google_drive:backup-folder --progress
-
-      # come back to this later
-    #- name: Setup rclone
-    #  uses: AnimMouse/setup-rclone@v1
-    #  with:
-    #    rclone_config: ${{ secrets.RCLONE_CONFIG }}
-    #    disable_base64: true
-
-    #- name: Backup to Google Drive
-    #  run: rclone copy ./db_backups google_drive:backup-folder --progress
 
     - name: Set version tag using timestamp
       id: vars

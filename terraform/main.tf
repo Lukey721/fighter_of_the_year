@@ -15,6 +15,56 @@ module "core_infra" {
   db_name     = var.db_name
 }
 
+resource "docker_image" "prometheus" {
+  name = "prom/prometheus:latest"
+}
+
+resource "docker_container" "prometheus" {
+  name  = "prometheus"
+  image = docker_image.prometheus.name
+
+  ports {
+    internal = 9090
+    external = 9090
+  }
+
+  volumes {
+    host_path      = abspath("${var.project_root}/prometheus.yml")
+    container_path = "/etc/prometheus/prometheus.yml"
+  }
+
+  depends_on = [module.core_infra]
+
+  networks_advanced {
+    name = module.core_infra.app_network_name
+  }
+}
+
+resource "docker_image" "grafana" {
+  name = "grafana/grafana:latest"
+}
+
+resource "docker_container" "grafana" {
+  name  = "grafana"
+  image = docker_image.grafana.name
+
+  ports {
+    internal = 3000
+    external = 3000
+  }
+
+  volumes {
+    host_path      = abspath("${var.project_root}/grafana")
+    container_path = "/var/lib/grafana"
+  }
+
+  depends_on = [module.core_infra]
+
+  networks_advanced {
+    name = module.core_infra.app_network_name
+  }
+}
+
 # User API
 resource "docker_image" "user_api" {
   name = var.user_api_image
@@ -30,6 +80,10 @@ resource "docker_container" "user_api" {
     internal = 3000
     external = 3001
   }
+  ports {
+    internal = 9394
+    external = 9394
+ }
   depends_on = [module.core_infra]
   networks_advanced {
     name = module.core_infra.app_network_name
@@ -51,6 +105,10 @@ resource "docker_container" "voting_api" {
   ports {
     internal = 3000
     external = 3002
+  }
+  ports {
+    internal = 9395
+    external = 9395
   }
   depends_on = [module.core_infra, docker_container.user_api]
   networks_advanced {

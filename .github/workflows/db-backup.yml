@@ -1,5 +1,5 @@
 name: PostgreSQL Backup
-
+#no longer in use
 on:
   schedule:
     - cron: '0 17 * * *'  # run at 6pm UTC every day

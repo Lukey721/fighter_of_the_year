@@ -145,6 +145,8 @@ GEM
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
+    prometheus_exporter (2.2.0)
+      webrick
     psych (5.2.3)
       date
       stringio
@@ -221,6 +223,7 @@ GEM
     tzinfo-data (1.2025.2)
       tzinfo (>= 1.0.0)
     uri (1.0.3)
+    webrick (1.9.1)
     websocket-driver (0.7.7)
       base64
       websocket-extensions (>= 0.1.0)
@@ -236,6 +239,7 @@ DEPENDENCIES
   debug
   faraday
   pg (~> 1.1)
+  prometheus_exporter
   puma (>= 5.0)
   rack-cors
   rails (~> 7.1.5, >= 7.1.5.1)

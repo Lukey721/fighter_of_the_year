@@ -53,7 +53,7 @@ override.tf
 override.tf.json
 .plan
 
-
+grafana/plugins/**/grot-404-dark.svg
 # dont back up database back up files
 /db_backups
 
