@@ -30,6 +30,6 @@ variable "frontend_green_image" {
 
 variable "project_root" {
   type        = string
-  description = "Absolute path to the project root "
-  default     = "C:/Users/lukey/OneDrive - Technological University Dublin/Code/College Projects/ufc-voting-microservices"
+  description = "Path to the root directory of the project"
+  default     = ".."
 }
