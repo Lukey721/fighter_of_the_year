@@ -158,3 +158,34 @@ resource "docker_container" "frontend_green" {
   }
   depends_on = [docker_container.user_api, docker_container.voting_api]
 }
+
+resource "docker_image" "frontend_main" {
+  name = "frontend-main:latest"
+  build {
+    context = "${path.module}/../frontend-main"
+  }
+}
+
+# Main front end for switching between blue and green
+resource "docker_container" "frontend_main" {
+  name  = "frontend-main"
+  image = docker_image.frontend_main.name
+
+  env = [
+    "ACTIVE_COLOR=${var.active_color}"
+  ]
+
+  ports {
+    internal = 80
+    external = 8080
+  }
+
+  depends_on = [
+    docker_container.frontend_blue,
+    docker_container.frontend_green
+  ]
+
+  networks_advanced {
+    name = module.core_infra.app_network_name
+  }
+}
