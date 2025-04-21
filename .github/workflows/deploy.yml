@@ -134,7 +134,8 @@ jobs:
         echo "frontend_blue_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
         echo "frontend_green_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
         echo "project_root = \"${{ github.workspace }}\"" >> ./terraform/terraform.tfvars
-        
+        echo "active_color = \"green\"" >> ./terraform/terraform.tfvars 
+
     - name: Print .tfvars
       run: cat ./terraform/terraform.tfvars
 
@@ -149,3 +150,7 @@ jobs:
     - name: Terraform Apply
       working-directory: ./terraform
       run: terraform apply -auto-approve -var-file="terraform.tfvars"
+
+    #- name: Check Prometheus endpoint is live
+    #  run: curl -f http://localhost:3000/metrics || exit 1
+

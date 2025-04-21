@@ -33,3 +33,8 @@ variable "project_root" {
   description = "Path to the root directory of the project"
   default     = ".."
 }
+
+variable "active_color" {
+  type    = string
+  default = "blue"
+}
