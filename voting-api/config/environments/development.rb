@@ -15,6 +15,7 @@ Rails.application.configure do
   config.hosts << 'frontend-green'
   config.hosts << 'frontend-blue:3000'
   config.hosts << 'frontend-green:3000'
+  config.action_controller.forgery_protection_origin_check = false
   # In the development environment your application's code is reloaded any time
   # it changes. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
