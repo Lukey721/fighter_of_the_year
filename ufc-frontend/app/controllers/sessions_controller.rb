@@ -20,7 +20,7 @@ class SessionsController < ApplicationController
       session[:user_email] = user['email']
       session[:user_id] = user['id']
       session[:is_admin] = user['is_admin']
-      redirect_to root_path, allow_other_host: true, notice: "Logged in as #{user['email']}"
+      redirect_to url_for(root_path), allow_other_host: true, notice: "Logged in as #{user['email']}"
     else
       flash.now[:alert] = 'Invalid email or password'
       render :login, status: :unauthorized
