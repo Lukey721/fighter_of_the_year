@@ -7,6 +7,8 @@ Rails.application.configure do
   config.hosts << "localhost"  # For localhost testing
   config.hosts << "172.19.0.1" # docker ip
   config.hosts << "user-api:3000"
+  config.hosts << "frontend-blue"
+  config.hosts << "frontend-green"
   # In the development environment your application's code is reloaded any time
   # it changes. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
