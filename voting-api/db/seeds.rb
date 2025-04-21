@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file should ensure the existence of records required to run the application in every environment (production,
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
@@ -12,18 +14,18 @@
 
 # Create Fighters first
 fighters = Fighter.create([
-  { name: 'Conor McGregor', ufc_id: 1 },
-  { name: 'Khabib Nurmagomedov', ufc_id: 2 }
-])
+                            { name: 'Conor McGregor', ufc_id: 1 },
+                            { name: 'Khabib Nurmagomedov', ufc_id: 2 }
+                          ])
 
 # Manually reference existing users' ids. These IDs should correspond to the user records already in the user-api.
 # The following user IDs are assumed to exist in your `user-api`.
 
-existing_user_ids = [1]  # These should be real user IDs from your `user-api`
+existing_user_ids = [1] # These should be real user IDs from your `user-api`
 
 # Create Votes by referencing existing user IDs
 Vote.create([
-  { user_id: existing_user_ids[0], fighter_id: fighters[0].id }
-])
+              { user_id: existing_user_ids[0], fighter_id: fighters[0].id }
+            ])
 
-puts "Seed data created successfully!"
+puts 'Seed data created successfully!'

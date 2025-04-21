@@ -1,18 +1,20 @@
-require "active_support/core_ext/integer/time"
+# frozen_string_literal: true
+
+require 'active_support/core_ext/integer/time'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
-  config.hosts << "frontend"  # Frontend container should be allowed to connect
-  config.hosts << "frontend:3000"  # Explicitly allow frontend on port 3000
-  config.hosts << "localhost"  # For localhost testing
-  config.hosts << "user-api"
-  config.hosts << "user-api:3000"    
-  config.hosts << "voting-api"
-  config.hosts << "voting-api:3000"
-  config.hosts << "frontend-blue"
-  config.hosts << "frontend-green"
-  config.hosts << "frontend-blue:3000"
-  config.hosts << "frontend-green:3000"
+  config.hosts << 'frontend' # Frontend container should be allowed to connect
+  config.hosts << 'frontend:3000' # Explicitly allow frontend on port 3000
+  config.hosts << 'localhost' # For localhost testing
+  config.hosts << 'user-api'
+  config.hosts << 'user-api:3000'
+  config.hosts << 'voting-api'
+  config.hosts << 'voting-api:3000'
+  config.hosts << 'frontend-blue'
+  config.hosts << 'frontend-green'
+  config.hosts << 'frontend-blue:3000'
+  config.hosts << 'frontend-green:3000'
   # In the development environment your application's code is reloaded any time
   # it changes. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
@@ -29,10 +31,10 @@ Rails.application.configure do
 
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.
-  if Rails.root.join("tmp/caching-dev.txt").exist?
+  if Rails.root.join('tmp/caching-dev.txt').exist?
     config.cache_store = :memory_store
     config.public_file_server.headers = {
-      "Cache-Control" => "public, max-age=#{2.days.to_i}"
+      'Cache-Control' => "public, max-age=#{2.days.to_i}"
     }
   else
     config.action_controller.perform_caching = false
@@ -65,7 +67,6 @@ Rails.application.configure do
 
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
-
 
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true

@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
-  resources :votes, only: [:create, :index]
+  resources :votes, only: %i[create index]
   get '/results', to: 'votes#results'
-  resources :fighters, only: [:create,:index]
+  resources :fighters, only: %i[create index]
 end

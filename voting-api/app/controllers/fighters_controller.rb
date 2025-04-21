@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FightersController < ApplicationController
   # before_action :authenticate_user! # for auth of admin user later
   def index
@@ -8,7 +10,7 @@ class FightersController < ApplicationController
   # this is essentailly the post
   def create
     @fighter = Fighter.new(fighter_params)
-    
+
     if @fighter.save
       render json: @fighters, status: :created
     else

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ostruct'
 class ApplicationController < ActionController::Base
   helper_method :current_user, :admin_user?
@@ -5,11 +7,13 @@ class ApplicationController < ActionController::Base
   private
 
   def current_user
+    return unless session[:user_id]
+
     @current_user ||= OpenStruct.new(
       id: session[:user_id],
       email: session[:user_email],
       is_admin: session[:is_admin]
-    ) if session[:user_id]
+    )
   end
 
   def user_signed_in?
@@ -21,14 +25,14 @@ class ApplicationController < ActionController::Base
   end
 
   def require_login
-    unless user_signed_in?
-      redirect_to login_path, alert: "You must be logged in to access this page."
-    end
+    return if user_signed_in?
+
+    redirect_to login_path, alert: 'You must be logged in to access this page.'
   end
 
   def require_admin
-    unless admin_user?
-      redirect_to root_path, alert: "You must be an admin to view this page."
-    end
+    return if admin_user?
+
+    redirect_to root_path, alert: 'You must be an admin to view this page.'
   end
 end

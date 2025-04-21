@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ostruct'
 require 'json'
 require 'faraday'
@@ -7,23 +9,23 @@ class UsersController < ApplicationController
   # before_action :authenticate_user!
   # before_action :ensure_admin
   def new
-    @user = OpenStruct.new 
+    @user = OpenStruct.new
   end
 
   # Handle the user registration by sending data to the user-api(backend)
   def create
-    response = Faraday.post("http://user-api:3000/users", {
-      user: {
-        name: params[:user][:name],
-        email: params[:user][:email],
-        password: params[:user][:password],
-        password_confirmation: params[:user][:password_confirmation]
-      }
-    })
+    response = Faraday.post('http://user-api:3000/users', {
+                              user: {
+                                name: params[:user][:name],
+                                email: params[:user][:email],
+                                password: params[:user][:password],
+                                password_confirmation: params[:user][:password_confirmation]
+                              }
+                            })
 
     if response.status == 201
       user_data = JSON.parse(response.body)
-      redirect_to thank_you_path(name: user_data["name"], email: user_data["email"])
+      redirect_to thank_you_path(name: user_data['name'], email: user_data['email'])
     else
       flash[:alert] = "Registration failed: #{response.body}"
       @user = OpenStruct.new(params[:user]) # repopulate the form

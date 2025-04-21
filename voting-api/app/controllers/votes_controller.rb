@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class VotesController < ApplicationController
   # before_action :authenticate_user, only: [:create]
 
@@ -8,20 +10,19 @@ class VotesController < ApplicationController
   end
 
   def create
-
     user_id = params[:vote][:user_id]
 
     # Check if the user has already voted
     existing_vote = Vote.find_by(user_id: user_id)
     if existing_vote
       render json: {
-        error: "You have already voted.",
+        error: 'You have already voted.',
         redirect_to: results_path
       }, status: :forbidden
       return
     end
 
-    @vote = Vote.new(vote_params.merge(user_id: params[:vote][:user_id]))  # Get user_id directly from params
+    @vote = Vote.new(vote_params.merge(user_id: params[:vote][:user_id])) # Get user_id directly from params
     if @vote.save
       render json: { redirect_to: results_path }, status: :ok
     else
@@ -42,6 +43,6 @@ class VotesController < ApplicationController
   private
 
   def vote_params
-    params.require(:vote).permit(:user_id, :fighter_id)  # Ensure we allow user_id and fighter_id
+    params.require(:vote).permit(:user_id, :fighter_id) # Ensure we allow user_id and fighter_id
   end
 end
