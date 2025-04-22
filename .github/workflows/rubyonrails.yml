@@ -25,17 +25,17 @@ jobs:
         ruby-version: 3.2.2 # The Ruby version 
         bundler-cache: true # Enable bundler caching for faster builds
     
-    #Allow access to bin directory for BDD tests
-    #- name: Verify Ruby Version and Permissions
-    #  run: |
-    #    chmod +x bin/*
-    #    sed -i 's/ruby.exe/ruby/' bin/*
+      # Allow access to bin directory for BDD tests
+    - name: Verify Ruby Version and Permissions
+      run: |
+        chmod +x bin/*
+        sed -i 's/ruby.exe/ruby/' bin/*
 
-    #- name: Install dependencies
-    #  env:
-    #    RAILS_ENV: test
-    #  run: |
-    #    bundle install --jobs 4 --retry 3
+    - name: Install dependencies
+      env:
+        RAILS_ENV: developement
+      run: |
+        bundle install --jobs 4 --retry 3
     
     # Precompile assets to ensure they are available for testing
     #- name: Precompile assets
@@ -71,6 +71,7 @@ jobs:
     #    name: Cucumber BDD Tests
     #    path: bdd_test_results/cucumber_results.txt
 
+      # Run rubocop for static code analysis
     - name: RuboCop on voting-api
       working-directory: ./voting-api
       run: bundle exec rubocop --fail-level=error
@@ -83,11 +84,29 @@ jobs:
       working-directory: ./ufc-frontend
       run: bundle exec rubocop --fail-level=error
       
-    # Run Dependency Vulnerability Scanning - Bundler Audit
-    - name: Run Dependency Vulnerability Scanning
+      # Run bundler-audit for dependency vulnerability checks
+    - name: Bundler Audit on voting-api
+      working-directory: ./voting-api
       run: bundle exec bundler-audit check --update
-
-    # Run Brakeman Security Scanner
-    - name: Run Brakeman Security Scanner
+    
+    - name: Bundler Audit on user-api
+      working-directory: ./user-api
+      run: bundle exec bundler-audit check --update
+    
+    - name: Bundler Audit on ufc-frontend
+      working-directory: ./ufc-frontend
+      run: bundle exec bundler-audit check --update
+    
+      # Run Brakeman for static security analysis
+    - name: Brakeman on voting-api
+      working-directory: ./voting-api
+      run: bundle exec brakeman -z
+    
+    - name: Brakeman on user-api
+      working-directory: ./user-api
+      run: bundle exec brakeman -z
+    
+    - name: Brakeman on ufc-frontend
+      working-directory: ./ufc-frontend
       run: bundle exec brakeman -z
   
