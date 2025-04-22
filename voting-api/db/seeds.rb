@@ -28,4 +28,4 @@ Vote.create([
               { user_id: existing_user_ids[0], fighter_id: fighters[0].id }
             ])
 
-puts 'Seed data created successfully!'
+Rails.logger.info 'Seed data created successfully!'

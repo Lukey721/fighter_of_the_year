@@ -32,7 +32,7 @@ class UsersController < ApplicationController
   def update_admin_status
     user = User.find(params[:id])
     Rails.logger.info("Toggling admin status for user: #{user.id}") # Debugging log
-
+    # Using update_column to bypass callbacks
     if user.update_column(:is_admin, !user.is_admin)
       render json: { message: 'User admin status updated.' }, status: :ok
     else

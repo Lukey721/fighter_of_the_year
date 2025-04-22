@@ -1,3 +1,6 @@
+require:
+  - rubocop-rails
+
 AllCops:
   TargetRubyVersion: 3.2
   NewCops: enable
@@ -24,7 +27,19 @@ Metrics/MethodLength:
 Metrics/CyclomaticComplexity:
   Enabled: false
 
+Rails/SkipsModelValidations:
+  Enabled: false
+
 Metrics/PerceivedComplexity:
+  Enabled: false
+
+Rails/UniqueValidationWithoutIndex:
+  Enabled: false
+
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+Style/OpenStructUse:
   Enabled: false
 
 Metrics/BlockLength:

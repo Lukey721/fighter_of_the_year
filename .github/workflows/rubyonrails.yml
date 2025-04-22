@@ -71,11 +71,17 @@ jobs:
     #    name: Cucumber BDD Tests
     #    path: bdd_test_results/cucumber_results.txt
 
-    # Code Analysis with RuboCop
-    - name: Run RuboCop
-      env:
-        RAILS_ENV: test
-      run: bundle exec rubocop --fail-level=error # only fail if errors
+    - name: RuboCop on voting-api
+      working-directory: ./voting-api
+      run: bundle exec rubocop --fail-level=error
+
+    - name: RuboCop on user-api
+      working-directory: ./user-api
+      run: bundle exec rubocop --fail-level=error
+
+    - name: RuboCop on ufc-frontend
+      working-directory: ./ufc-frontend
+      run: bundle exec rubocop --fail-level=error
       
     # Run Dependency Vulnerability Scanning - Bundler Audit
     - name: Run Dependency Vulnerability Scanning
