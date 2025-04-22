@@ -24,19 +24,25 @@ jobs:
       with:
         ruby-version: 3.2.2 # The Ruby version 
         bundler-cache: true # Enable bundler caching for faster builds
+
+    - name: Install dependencies for ufc-frontend
+      working-directory: ./ufc-frontend
+      run: bundle install
+      
+    - name: Install dependencies for user-api
+      working-directory: ./user-api
+      run: bundle install
+      
+    - name: Install dependencies for voting-api
+      working-directory: ./voting-api
+      run: bundle install
     
       # Allow access to bin directory for BDD tests
-    - name: Verify Ruby Version and Permissions
-      run: |
-        chmod +x bin/*
-        sed -i 's/ruby.exe/ruby/' bin/*
+    #- name: Verify Ruby Version and Permissions
+     # run: |
+     #   chmod +x bin/*
+     #   sed -i 's/ruby.exe/ruby/' bin/*
 
-    - name: Install dependencies
-      env:
-        RAILS_ENV: developement
-      run: |
-        bundle install --jobs 4 --retry 3
-    
     # Precompile assets to ensure they are available for testing
     #- name: Precompile assets
     #  run: |
