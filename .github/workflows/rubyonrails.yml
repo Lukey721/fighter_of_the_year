@@ -48,20 +48,6 @@ jobs:
     #  run: |
     #      bundle exec rails assets:precompile
 
-    # Run RSpec tests for unit tests
-    #- name: Run RSpec tests
-    #  env:
-    #    RAILS_ENV: test
-    #  run: |
-    #    bundle exec rspec spec/controllers/blood_pressure_calculator_spec.rb
-      
-    # Upload code coverage report as an artifact
-    #- name: Save Coverage Report
-    #  uses: actions/upload-artifact@v4
-    #  with:
-    #    name: coverage-report
-    #    path: coverage/
-
     # Run BDD tests with Cucumber
     #- name: Run BDD tests
     #  env:
@@ -115,4 +101,15 @@ jobs:
     - name: Brakeman on ufc-frontend
       working-directory: ./ufc-frontend
       run: bundle exec brakeman -z
+
+    - name: Run RSpec tests
+      working-directory: ./ufc-frontend
+      run: bundle exec rspec
+
+    # Upload code coverage report as an artifact
+    - name: Save Coverage Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage/
   
