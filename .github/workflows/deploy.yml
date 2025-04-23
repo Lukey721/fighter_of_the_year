@@ -56,17 +56,25 @@ jobs:
     - name: Save current version to tracked file
       run: echo "${{ env.VERSION }}" > ./terraform/last_version.txt
       
-    - name: Commit version info
+    - name: Git pull version file
       if: github.event.inputs.rollback_version == ''
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git pull --rebase origin master
-          echo "${{ env.VERSION }}" > ./terraform/last_version.txt
-          git add -f ./terraform/last_version.txt
-          git commit -m "Track last deployed version: ${{ env.VERSION }}" || echo "Nothing to commit"
-          git push origin master
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+        git pull --rebase origin master
+    
+    - name: Save and commit version info
+      if: github.event.inputs.rollback_version == ''
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "${{ env.VERSION }}" > ./terraform/last_version.txt
+        git add -f ./terraform/last_version.txt
+        git commit -m "Track last deployed version: ${{ env.VERSION }}" || echo "Nothing to commit"
+        git push origin master
 
       # Execute the rollback
     - name: Override version for rollback if specified
