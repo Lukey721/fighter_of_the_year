@@ -48,12 +48,15 @@ jobs:
       run: echo "${{ env.VERSION }}" > ./terraform/last_version.txt
       
     - name: Commit version info
+      if: github.event.inputs.rollback_version == ''
       run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add -f ./terraform/last_version.txt
           git commit -m "Track last deployed version: ${{ env.VERSION }}"
           git push origin master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Execute the rollback
     - name: Override version for rollback if specified
@@ -64,36 +67,42 @@ jobs:
 
     # Build user-api image (no push yet)
     - name: Build user-api
+      if: github.event.inputs.rollback_version == ''
       id: build_user_api
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }} ./${{ secrets.USER_CONTEXT }}
 
     # Build voting-api image (no push yet)
     - name: Build voting-api
+      if: github.event.inputs.rollback_version == ''
       id: build_voting_api
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }} ./${{ secrets.VOTING_CONTEXT }}
 
     # Build frontend image (no push yet)
     - name: Build frontend-blue
+      if: github.event.inputs.rollback_version == ''
       id: build_frontend_blue
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }} ./${{ secrets.FRONTEND_CONTEXT }}
 
     # Build frontend image (no push yet)
     - name: Build frontend-green
+      if: github.event.inputs.rollback_version == ''
       id: build_frontend_green
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }} ./${{ secrets.FRONTEND_CONTEXT }}
 
-    # Isntall Trivy for vulnerability scanning
+    # Install Trivy for vulnerability scanning
     - name: Install Trivy for vulnerability scanning
+      if: github.event.inputs.rollback_version == ''
       run: |
         curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.22.0/trivy_0.22.0_Linux-64bit.tar.gz | tar -xzv
         sudo mv trivy /usr/local/bin/
 
     # Scan the user-api Docker image for vulnerabilities
     - name: Scan Docker image with Trivy - User api
+      if: github.event.inputs.rollback_version == ''
       run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }} > user-api-trivy-report.json
 
     # Upload the user Trivy scan report as an artifact
@@ -105,6 +114,7 @@ jobs:
 
     # Scan the voting-api Docker image for vulnerabilities
     - name: Scan Docker image with Trivy - Voting api
+      if: github.event.inputs.rollback_version == ''
       run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }} > voting-api-trivy-report.json
 
     # Upload the voting Trivy scan report as an artifact
@@ -116,6 +126,7 @@ jobs:
 
     # Scan the frontend Docker image for vulnerabilities
     - name: Scan Docker image with Trivy - Frontend blue
+      if: github.event.inputs.rollback_version == ''
       run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }} > frontend-blue-trivy-report.json
 
     # Upload the frontend Trivy scan report as an artifact
@@ -127,6 +138,7 @@ jobs:
 
     # Scan the frontend Docker image for vulnerabilities
     - name: Scan Docker image with Trivy - Frontend green
+      if: github.event.inputs.rollback_version == ''
       run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }} > frontend-green-trivy-report.json
 
     # Upload the frontend Trivy scan report as an artifact
@@ -138,18 +150,22 @@ jobs:
 
     # Push the user-api image to Docker Hub
     - name: Push user-api Docker image to Docker Hub
+      if: github.event.inputs.rollback_version == ''
       run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }}
 
     # Push the voting-api image to Docker Hub
     - name: Push voting-api Docker image to Docker Hub
+      if: github.event.inputs.rollback_version == ''
       run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }}
 
     # Push the blue frontend image to Docker Hub
     - name: Push frontend blue Docker image to Docker Hub
+      if: github.event.inputs.rollback_version == ''
       run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }}
 
     # Push the green frontend image to Docker Hub
     - name: Push frontend green Docker image to Docker Hub
+      if: github.event.inputs.rollback_version == ''
       run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}
 
     - name: Set up Terraform
