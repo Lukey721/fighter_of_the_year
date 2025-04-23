@@ -135,7 +135,17 @@ jobs:
         echo "frontend_green_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
         echo "project_root = \"${{ github.workspace }}\"" >> ./terraform/terraform.tfvars
         echo "active_color = \"green\"" >> ./terraform/terraform.tfvars 
-
+    
+    - name: Commit and push changes to the repo
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git add ./terraform/terraform.tfvars
+        git commit -m "Update terraform.tfvars"
+        git push origin master 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          
     - name: Print .tfvars
       run: cat ./terraform/terraform.tfvars
 
