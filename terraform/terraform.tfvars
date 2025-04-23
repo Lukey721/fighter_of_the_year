@@ -1,0 +1,6 @@
+user_api_image = "lukey721/user-api:1745436694"
+voting_api_image = "lukey721/voting-api:1745436694"
+frontend_blue_image = "lukey721/frontend:blue1745436694"
+frontend_green_image = "lukey721/frontend:green1745436694"
+project_root = "/home/runner/work/fighter_of_the_year/fighter_of_the_year"
+active_color = "green"
