@@ -3,6 +3,16 @@ name: Build and Push to Docker Hub
 on:
   push:
     branches: [ "master" ]
+  workflow_dispatch:
+    inputs:
+      destroy:
+        description: 'Destroy the infrastructure?'
+        required: false
+        default: 'false'
+      rollback_version:
+        description: 'Version to rollback to (leave blank to deploy new)'
+        required: false
+        default: ''
 
 jobs:
   docker-build-push:
@@ -33,6 +43,24 @@ jobs:
       with:
         name: version-tag
         path: version.txt
+
+    - name: Save current version to tracked file
+      run: echo "${{ env.VERSION }}" > ./terraform/last_version.txt
+      
+    - name: Commit version info
+      run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add -f ./terraform/last_version.txt
+          git commit -m "Track last deployed version: ${{ env.VERSION }}"
+          git push origin master
+
+      # Execute the rollback
+    - name: Override version for rollback if specified
+      if: github.event.inputs.rollback_version != ''
+      run: |
+          echo "ROLLBACK VERSION SELECTED: ${{ github.event.inputs.rollback_version }}"
+          echo "VERSION=${{ github.event.inputs.rollback_version }}" >> "$GITHUB_ENV"
 
     # Build user-api image (no push yet)
     - name: Build user-api
@@ -140,12 +168,12 @@ jobs:
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
-        git add ./terraform/terraform.tfvars
+        git add -f ./terraform/terraform.tfvars
         git commit -m "Update terraform.tfvars"
         git push origin master 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-          
+
     - name: Print .tfvars
       run: cat ./terraform/terraform.tfvars
 
@@ -157,10 +185,17 @@ jobs:
       working-directory: ./terraform
       run: terraform validate
 
+     # This is a step to destroy the infrastructure - ensure idempotency
+    - name: Terraform Destroy 
+      if: github.event.inputs.destroy == 'true'
+      working-directory: ./terraform
+      run: terraform destroy -auto-approve -var-file="terraform.tfvars"
+
     - name: Terraform Apply
       working-directory: ./terraform
       run: terraform apply -auto-approve -var-file="terraform.tfvars"
 
     #- name: Check Prometheus endpoint is live
     #  run: curl -f http://localhost:3000/metrics || exit 1
+    
 
