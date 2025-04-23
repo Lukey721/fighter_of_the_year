@@ -1,5 +1,8 @@
 name: Build and Push to Docker Hub
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ "master" ]
