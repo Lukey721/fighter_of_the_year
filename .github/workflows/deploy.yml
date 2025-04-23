@@ -61,12 +61,12 @@ jobs:
       run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git pull --rebase origin master
+          echo "${{ env.VERSION }}" > ./terraform/last_version.txt
           git add -f ./terraform/last_version.txt
-          git commit -m "Track last deployed version: ${{ env.VERSION }}"
+          git commit -m "Track last deployed version: ${{ env.VERSION }}" || echo "Nothing to commit"
           git push origin master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Execute the rollback
     - name: Override version for rollback if specified
