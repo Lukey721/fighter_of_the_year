@@ -205,16 +205,26 @@ jobs:
         # come back to below when directing to new front end
         # echo "active_color = \"green\"" >> ./terraform/terraform.tfvars 
     
-    - name: Commit and push changes to the repo
+    - name: Git pull with rebase before tfvars commit
       if: github.event.inputs.rollback_version == ''
       env:
-       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config --global user.name "github-actions"
-        git config --global user.email "github-actions@github.com"
-        git add -f ./terraform/terraform.tfvars
-        git commit -m "Update terraform.tfvars"
-        git push origin master 
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git stash --include-untracked
+          git pull --rebase origin master
+          git stash pop || echo "No stash to apply"
+      
+    - name: Commit and push terraform.tfvars
+      if: github.event.inputs.rollback_version == ''
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          git add -f ./terraform/terraform.tfvars
+          git commit -m "Update terraform.tfvars" || echo "Nothing to commit"
+          git push origin master 
 
     - name: Print .tfvars
       run: cat ./terraform/terraform.tfvars
