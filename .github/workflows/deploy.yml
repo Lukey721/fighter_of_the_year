@@ -25,6 +25,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Notify Slack of deployment started
+      if: github.event.inputs.rollback_version == ''
+      run: |
+        curl -X POST -H 'Content-type: application/json' --data "{
+        \"text\": \"*Deployment Started Notification*\n*Workflow:* ${{ github.workflow }}\n*Status:* ${{ job.status }}\n*Branch:* ${{ github.ref_name }}\n*Initiated by:* ${{ github.actor }}"
+        }" ${{ secrets.SLACK_WEBHOOK_URL }}
+
     - name: Set up Git authentication
       run: |
         git config --global user.name "github-actions"
@@ -250,4 +257,10 @@ jobs:
     #- name: Check Prometheus endpoint is live
     #  run: curl -f http://localhost:3000/metrics || exit 1
     
+    - name: Notify Slack of finished deployment
+      if: github.event.inputs.rollback_version == ''
+      run: |
+        curl -X POST -H 'Content-type: application/json' --data "{
+        \"text\": \"*Deployment Finished Notification*\n*Workflow:* ${{ github.workflow }}\n*Status:* ${{ job.status }}\n*Branch:* ${{ github.ref_name }}\n*Initiated by:* ${{ github.actor }}\n*Version:* ${{ env.VERSION }}\"
+        }" ${{ secrets.SLACK_WEBHOOK_URL }}
 
