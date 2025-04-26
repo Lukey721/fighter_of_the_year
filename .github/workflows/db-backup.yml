@@ -64,4 +64,4 @@ jobs:
       
     - name: Upload backup to Google Drive
       run: |
-        rclone copy db_backup.tar.gz gdrive:/database_backups/
+        rclone copy db_backup.tar.gz google_drive:/database_backups/
