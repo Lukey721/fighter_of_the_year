@@ -50,3 +50,16 @@ jobs:
       with:
         name: postgres-db-backup
         path: db_backup.tar.gz
+
+    - name: Setup rclone
+      uses: wei/rclone-action@v2
+      with:
+        rclone_config: ${{ secrets.RCLONE_CONFIG }}
+  
+    - name: Upload backup to Google Drive with rclone
+      env:
+        RCLONE_CONFIG_GDRIVE: ${{ secrets.RCLONE_CONFIG }}
+      run: |
+          mkdir -p ~/.config/rclone
+          echo "$RCLONE_CONFIG" > ~/.config/rclone/rclone.conf
+          rclone copy db_backup.tar.gz gdrive:/database_backups/
