@@ -41,15 +41,12 @@ jobs:
             -e PGPASSWORD=password \
             postgres:17.4 \
             pg_dump -h localhost -U postgres -d user_api_development > backups/backup_$TIMESTAMP.sql
+        echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
 
     - name: Archive backup
-      run: tar -czvf db_backup.tar.gz backups/
-
-    - name: Upload backup as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: postgres-db-backup
-        path: db_backup.tar.gz
+      run: |
+        tar -czvf db_backup_${{ env.TIMESTAMP }}.tar.gz backups/
+        echo "BACKUP_FILE=db_backup_${{ env.TIMESTAMP }}.tar.gz" >> $GITHUB_ENV
 
     - name: Install rclone
       run: |
@@ -64,4 +61,4 @@ jobs:
       
     - name: Upload backup to Google Drive
       run: |
-        rclone copy db_backup.tar.gz google_drive:/database_backups/
+        rclone copy $BACKUP_FILE google_drive:/database_backups/
