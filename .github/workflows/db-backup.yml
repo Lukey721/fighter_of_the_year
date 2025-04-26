@@ -53,7 +53,7 @@ jobs:
 
     - name: Upload backup to Google Drive
       env:
-        RCLONE_CONFIG_GDRIVE: ${{ secrets.RCLONE_CONFIG }}
+        RCLONE_CONFIG: ${{ secrets.RCLONE_CONFIG }}
       run: |
           mkdir -p ~/.config/rclone
           echo "$RCLONE_CONFIG" > ~/.config/rclone/rclone.conf
