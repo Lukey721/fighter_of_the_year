@@ -15,7 +15,7 @@ jobs:
         env:
           POSTGRES_DB: user_api_development
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
@@ -38,7 +38,7 @@ jobs:
         mkdir -p backups
         docker run --rm \
             --network host \
-            -e PGPASSWORD=password \
+            -e PGPASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
             postgres:17.4 \
             pg_dump -h localhost -U postgres -d user_api_development > backups/backup_$TIMESTAMP.sql
         echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
