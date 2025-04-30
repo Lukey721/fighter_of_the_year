@@ -32,4 +32,10 @@ Rails.application.routes.draw do
   # Resources for users and fighters
   resources :users, only: %i[new create] # Only new and create actions for users
   resources :fighters, only: %i[new index] # Only index action for fighters
+
+  if Rails.env.test?
+    get 'test', to: 'test#index'
+    get 'test/private_action', to: 'test#private_action'
+    get 'test/admin_action', to: 'test#admin_action'
+  end
 end

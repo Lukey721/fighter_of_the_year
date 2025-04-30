@@ -27,7 +27,7 @@ RSpec.describe UsersController, type: :controller do
       puts "Registration Test - Successful Registration Redirect: #{response.status} → #{response.location}"
     end
 
-    # Mock registration unsucessful as email already in use 
+    # Mock registration unsucessful as email already in use
     it 're-renders new form on API error' do
       allow(Faraday).to receive(:post).and_return(
         instance_double(Faraday::Response, status: 422, body: 'Email already taken')

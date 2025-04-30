@@ -68,4 +68,63 @@ RSpec.describe VotesController, type: :controller do
       puts "Voting Test - JSON Parse Error Handling: #{flash[:alert]}"
     end
   end
+  describe 'GET #new' do
+    before do
+      session[:user_id] = 1
+    end
+
+    it 'assigns fighters on successful API response' do
+      allow(Faraday).to receive(:get).and_return(
+        instance_double(Faraday::Response, status: 200, body: [{ id: 1, name: 'Jon Jones' }].to_json)
+      )
+
+      get :new
+
+      expect(assigns(:fighters)).to be_an(Array)
+      expect(response).to be_successful
+      puts "Voting Test - New Page Loads Fighters: #{assigns(:fighters)}"
+    end
+
+    it 'shows flash and assigns empty array on API failure' do
+      allow(Faraday).to receive(:get).and_return(
+        instance_double(Faraday::Response, status: 500, body: 'Error')
+      )
+
+      get :new
+
+      expect(assigns(:fighters)).to eq([])
+      expect(flash[:alert]).to eq('Could not fetch the list of fighters. Please try again.')
+      puts "Voting Test - Failed to load fighters: #{flash[:alert]}"
+    end
+  end
+
+  describe 'GET #results' do
+    before do
+      session[:user_id] = 1
+    end
+
+    it 'assigns results on successful API response' do
+      allow(Faraday).to receive(:get).and_return(
+        instance_double(Faraday::Response, status: 200, body: [{ fighter_id: 1, votes: 10 }].to_json)
+      )
+
+      get :results
+
+      expect(assigns(:results)).to be_an(Array)
+      expect(response).to be_successful
+      puts "Voting Test - Results Loaded: #{assigns(:results)}"
+    end
+
+    it 'shows flash and assigns empty results on failure' do
+      allow(Faraday).to receive(:get).and_return(
+        instance_double(Faraday::Response, status: 500, body: 'Error')
+      )
+
+      get :results
+
+      expect(assigns(:results)).to eq([])
+      expect(flash[:alert]).to eq('Could not fetch the voting results. Please try again.')
+      puts "Voting Test - Results Error: #{flash[:alert]}"
+    end
+  end
 end
