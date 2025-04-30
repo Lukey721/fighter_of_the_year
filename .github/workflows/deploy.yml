@@ -202,6 +202,19 @@ jobs:
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
 
+      # allow scaling based on peak hours
+    - name: Determine user-api replica count based on time of day
+      run: |
+        HOUR=$(date +%H)
+        if [ "$HOUR" -ge 12 ] && [ "$HOUR" -le 20 ]; then
+          echo "Peak hours – using 3 replicas"
+          REPLICAS=3
+        else
+          echo "Off-peak – using 1 replica"
+          REPLICAS=1
+        fi
+        echo "REPLICAS=$REPLICAS" >> $GITHUB_ENV
+
     - name: Generate terraform.tfvars
       run: |
         echo "user_api_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }}\"" > ./terraform/terraform.tfvars
@@ -210,7 +223,8 @@ jobs:
         echo "frontend_green_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
         echo "project_root = \"${{ github.workspace }}\"" >> ./terraform/terraform.tfvars
         # come back to below when directing to new front end
-        # echo "active_color = \"green\"" >> ./terraform/terraform.tfvars 
+        # echo "active_color = \"green\"" >> ./terraform/terraform.tfvars
+        echo "user_api_replicas = ${{ env.REPLICAS }}" >> ./terraform/terraform.tfvars 
     
     - name: Git pull with rebase before tfvars commit
       if: github.event.inputs.rollback_version == ''

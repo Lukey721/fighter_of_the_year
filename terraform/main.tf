@@ -70,21 +70,49 @@ resource "docker_image" "user_api" {
   name = var.user_api_image
 }
 
+#resource "docker_container" "user_api" {
+#  name  = "user-api"
+#  image = docker_image.user_api.name
+#  env = [
+#    "DATABASE_URL=postgres://${var.db_user}:${var.db_password}@postgres-db:5432/${var.db_name}"
+#  ]
+#  ports {
+#    internal = 3000
+#    external = 3001
+#  }
+#  ports {
+#    internal = 9394
+#    external = 9394
+#  }
+#  depends_on = [module.core_infra]
+#  networks_advanced {
+#    name = module.core_infra.app_network_name
+#  }
+#}
+
+# USER API CONTAINERS (scalable)
 resource "docker_container" "user_api" {
-  name  = "user-api"
+  count = var.user_api_replicas
+
+  name  = "user-api-${count.index}"
   image = docker_image.user_api.name
+
   env = [
     "DATABASE_URL=postgres://${var.db_user}:${var.db_password}@postgres-db:5432/${var.db_name}"
   ]
+
   ports {
     internal = 3000
-    external = 3001
+    external = 3001 + count.index
   }
+
   ports {
     internal = 9394
-    external = 9394
+    external = 9394 + count.index
   }
+
   depends_on = [module.core_infra]
+
   networks_advanced {
     name = module.core_infra.app_network_name
   }
