@@ -279,7 +279,7 @@ jobs:
     - name: Run K6 Load Test
       run: |
         docker run -i --rm \
-          -v ${{ github.workspace }}/ufc-frontend/K6tests:/tests \
+          -v ${{ github.workspace }}/K6tests:/tests \
           grafana/k6 run /tests/perf_test2.js > k6report.txt
 
     # Upload ZAP report as an artifact
