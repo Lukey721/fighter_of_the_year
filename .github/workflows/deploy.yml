@@ -47,6 +47,9 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
+    - name: Debug K6tests directory
+      run: ls -la ${{ github.workspace }}/K6tests
+
     - name: Set version tag using timestamp
       id: vars
       run: echo "VERSION=$(date +%s)" >> "$GITHUB_ENV"
@@ -282,7 +285,7 @@ jobs:
           -v ${{ github.workspace }}/K6tests:/tests \
           grafana/k6 run /tests/perf_test2.js > k6report.txt
 
-    # Upload ZAP report as an artifact
+    # Upload k6 report as an artifact
     - name: Upload K6 Report
       uses: actions/upload-artifact@v4
       with:
