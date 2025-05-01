@@ -8,11 +8,13 @@ Hash: SHA512
   "signedByOrg": "grafana",
   "signedByOrgName": "Grafana Labs",
   "plugin": "grafana-lokiexplore-app",
-  "version": "1.0.12",
-  "time": 1745340081805,
+  "version": "1.0.13",
+  "time": 1745414058861,
   "keyId": "7e4d0c6a708866e7",
   "files": {
     "1759fd27b2c9f73dea05.wasm": "c79b8fa1bea557bdcd6b743a00e5c47aef7f71a457dcbaa63218dd4a706475b6",
+    "386.js": "6782c1606a1a3471c7366506951bff68d115ca771651f31b85e67c5b6462a219",
+    "386.js.map": "8d103e6c5961b01d97a582fb27d761d62de93f3f77c583497bf32cc5817b1e3d",
     "3d96a93cfcb32df74eef.svg": "11ca1cf6edec87db3a9725b071f17c93c2313d9130d31d37da3458509a8ff67b",
     "470.js": "6b6601759960132707ae93546acd1032f6ee3c9ed214e618258a62ff52aec250",
     "470.js.LICENSE.txt": "e25e5f78cf2b2fbbf8d4865193c9642bea9f75a1ba1323a8476a534310b26d58",
@@ -23,10 +25,8 @@ Hash: SHA512
     "677.js": "755772e691aa7a54e88174141e99d6a054eb0579efa320aabd1d5fe9f797f242",
     "677.js.LICENSE.txt": "79d83c8ce633e6548fb00ad27024670d2fdb6894322628a910e6dc3af5cd5e8b",
     "677.js.map": "701a75155a67be29835d5efab344c81d3786ee9c0062b9a97b7f51c11b64fba8",
-    "82.js": "9c09cb6d92d48d83766e4c7a750949a48898549a29dfbb634cf1cf061831790a",
-    "82.js.map": "765f9545fc1a2c6be3b93dd1b749c0d322ef9485701a362b8708ba90dc800b46",
-    "825.js": "924ca1263c1062a4269b78d04241856a58fc74fb97b97db8d5c0a8fa3311d72a",
-    "825.js.map": "249e19153a39a4a154fbb2a03b91815405a8f6c0baf916bae74ff517155a2493",
+    "82.js": "245f26685dfc25791ac756eb2e2430fe15b2310e3af007ee2a011ddeb1993899",
+    "82.js.map": "c015267e78e84acd1b49351df159cebbdd41ba92ac7ada9f54c89c4737a70424",
     "826.js": "1f4b0aa9fd7edae735ee534d215f0b5d97ec203f06ddd062ee9d000f7717ec61",
     "826.js.map": "aeb054826938c0e90cf2f660749f83b51d11cde26cdf214d3cc0338f9669a4b3",
     "854.js": "421be9b543902b99c85c30153ce2da0ff9822dfefae9229dd201f0e9208dc0bd",
@@ -35,7 +35,7 @@ Hash: SHA512
     "919.js.map": "2fefec0d7521654d194ff58704460490cf6db9536781ee357e77f77eafea0499",
     "944.js": "50d0e55fc61eb78dc3137f90347bca6523c925e295b304043f6a80d87852df97",
     "944.js.map": "b2a93650921f2dbe9917a3b382ba0627ae2d67d74c8d6f9a4422877a2882adff",
-    "CHANGELOG.md": "33a890fc0d6c04216837d4c3b4a231dc1c684165507c82779091abdcfaaa0bfc",
+    "CHANGELOG.md": "8aa388be636482a4863e73ffa4f17813d1ace7705ab8b5c89f55353668d20407",
     "LICENSE": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef",
     "README.md": "c0bb6ec895f571f81feb93086942219c7aa987c824134791ecc81724bcabab56",
     "img/drilldown-features.png": "f43cb1e498df7c4f70e10768306e52cb00bc8f24e66259a4dd91d55cf3be0948",
@@ -48,19 +48,19 @@ Hash: SHA512
     "img/patterns.png": "bf100549ec168420e9a7b6d759f492a761f964d33d45a3217ba30b9827b2bece",
     "img/service_logs.jpg": "42f41204403337358ae437a7ad052daec6f9b6f9bef7f297fd065c1e68133bf4",
     "img/table.png": "fe2fa65a8a761feb0a93c62231644645fb60ee06c44dda3ab16dc4e432286572",
-    "module.js": "fc010509f7002c06d0f9e7c78b087307dc0fa2f19e991002b9f44473a5b9b174",
-    "module.js.map": "22a258ea932ceb7cec38ec1bc1869b057d3c0dca69581eab62e128c3835e633e",
-    "plugin.json": "54729e6af3f7f81bd83bb40bd360fb0fab127155a8e2e53cf3c40d6db6b7718e"
+    "module.js": "de31f21936bf8a707adcf4b19f07c6cd27737c8efc57cc2466decaa7525e6d95",
+    "module.js.map": "918e266f156cd402300fc1c26f47f25c3353b6b0cf857d85e8691bbe495543ea",
+    "plugin.json": "b624091bf50d893ba2ddfd8000df085b2a8acd8ec2083bd928a086e4830e367f"
   }
 }
 -----BEGIN PGP SIGNATURE-----
 Version: OpenPGP.js v4.10.11
 Comment: https://openpgpjs.org
 
-wrkEARMKAAYFAmgHxrIAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
-cIhm5/uCAgkB8ymh+y1YJppMJ3q+okpnZ6OicNWnSMa3lSUQuuGLwOu0yaw6
-16YUy9DK07jePmJ31rtInF8gGEdBg7q30+G/tP0CCQCUdgLxxRjPrF89OZCu
-PmGMSvsU7iKTEsflDGhj88Qf3Y3L3iBvcBbGZbLJSBp86/5wXzs5+6oRfLG0
-UP43acjNHA==
-=BeAY
+wrkEARMKAAYFAmgI56sAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
+cIhm5+3qAgkA40AwL2aZOrKLchyU6hFNlGLBehtcKuZpQm41JSIDYdjqVpUJ
+Ed3FLS4rKsWTd6wGlEeW4tV8bCTbZdBfdOqN85ICCQAoMRrl9HNtiRb7q5IR
+2lWn4uPZ2LXqn6oxNoAQnSS2OfFbEyvnKG53F4zoZDAddQNI4yT9oDBCmLp8
+tTA0CisKCg==
+=PFXM
 -----END PGP SIGNATURE-----

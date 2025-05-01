@@ -1,4 +1,4 @@
-name: Build and Push to Docker Hub
+name: Deploy Workflow
 
 permissions:
   contents: write
@@ -270,6 +270,24 @@ jobs:
 
     #- name: Check Prometheus endpoint is live
     #  run: curl -f http://localhost:3000/metrics || exit 1
+    
+    # Pull docker image for K6
+    - name: Pull Docker image for K6
+      run: docker pull grafana/k6
+   
+    # Run K6 script
+    - name: Run K6 Load Test
+      run: |
+        docker run -i --rm \
+          -v ${{ github.workspace }}/ufc-frontend/K6tests:/tests \
+          grafana/k6 run /tests/perf_test2.js > k6report.txt
+
+    # Upload ZAP report as an artifact
+    - name: Upload K6 Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: k6report
+        path: k6report.txt
     
     - name: Notify Slack of finished deployment
       if: github.event.inputs.rollback_version == ''

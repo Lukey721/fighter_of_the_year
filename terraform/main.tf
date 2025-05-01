@@ -32,7 +32,7 @@ resource "docker_container" "prometheus" {
     host_path      = abspath("${var.project_root}/prometheus.yml")
     container_path = "/etc/prometheus/prometheus.yml"
   }
-
+  
   depends_on = [module.core_infra]
 
   networks_advanced {
@@ -103,12 +103,12 @@ resource "docker_container" "user_api" {
 
   ports {
     internal = 3000
-    external = 3001 + count.index
+    external = count.index == 1 ? 3004 : 3001 + count.index
   }
 
   ports {
     internal = 9394
-    external = 9394 + count.index
+    external = count.index == 1 ? 9397 : count.index == 2 ? 9398 : 9394 + count.index
   }
 
   depends_on = [module.core_infra]
