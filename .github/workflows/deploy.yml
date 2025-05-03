@@ -96,7 +96,7 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git stash --include-untracked
-          git pull --rebase origin master
+          git pull --rebase origin testing
           git stash pop || echo "No stash to apply"
     
     - name: Save and commit version info
@@ -107,7 +107,7 @@ jobs:
         echo "${{ env.VERSION }}" > ./terraform/last_version.txt
         git add -f ./terraform/last_version.txt
         git commit -m "Track last deployed version: ${{ env.VERSION }}" || echo "Nothing to commit"
-        git push origin master
+        git push origin testing
 
       # Execute the rollback
     - name: Override version for rollback if specified
@@ -243,14 +243,12 @@ jobs:
       if: github.event.inputs.rollback_version == ''
       id: envfile
       run: |
-          cat > .env <<EOF
-          ACTIVE_COLOR=${{ env.NEW_COLOR }}
-          USER_API_IMAGE=$DOCKER_USER/$USER_IMAGE:${{ env.VERSION }}
-          VOTING_API_IMAGE=$DOCKER_USER/$VOTING_IMAGE:${{ env.VERSION }}
-          FRONTEND_IMAGE=$DOCKER_USER/$FRONTEND_IMAGE:${{ env.NEW_COLOR }}${{ env.VERSION }}
-          EOF
-          echo "\n.env now contains:\n-----------------"
-          cat .env
+        {
+          echo "ACTIVE_COLOR=${NEW_COLOR}"
+          echo "USER_API_IMAGE=${DOCKER_USER}/${USER_IMAGE}:${VERSION}"
+          echo "VOTING_API_IMAGE=${DOCKER_USER}/${VOTING_IMAGE}:${VERSION}"
+          echo "FRONTEND_IMAGE=${DOCKER_USER}/${FRONTEND_IMAGE}:${NEW_COLOR}${VERSION}"
+        } > .env
 
     - name: Commit and push .env
       if: github.event.inputs.rollback_version == ''
@@ -259,7 +257,7 @@ jobs:
       run: |
           git add -f .env
           git commit -m "ci: update .env (version=${{ env.VERSION }}, colour=${{ env.NEW_COLOR }}) [skip ci]" || echo "Nothing to commit"
-          git push origin master
+          git push origin testing
   
       # infra baseline setup
     - name: Terraform Init
