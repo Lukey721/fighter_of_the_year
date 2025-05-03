@@ -5,7 +5,7 @@ permissions:
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "testing" ]
   workflow_dispatch:
     inputs:
       destroy:
@@ -17,13 +17,25 @@ on:
         required: false
         default: ''
 
+env:
+  DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+  USER_IMAGE: ${{ secrets.DOCKER_USER_IMAGE_NAME }}
+  VOTING_IMAGE: ${{ secrets.DOCKER_VOTING_IMAGE_NAME }}
+  FRONTEND_IMAGE: ${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}
+
+
 jobs:
   docker-build-push:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0   # rebase later
 
     - name: Notify Slack of workflow started 
       if: always()
@@ -47,12 +59,21 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Debug K6tests directory
-      run: ls -la ${{ github.workspace }}/K6tests
-
     - name: Set version tag using timestamp
       id: vars
       run: echo "VERSION=$(date +%s)" >> "$GITHUB_ENV"
+
+    - name: Decide next active colour (blue/green)
+      id: colour
+      run: |
+        CURRENT_COLOR=$(grep -E '^ACTIVE_COLOR=' .env | cut -d'=' -f2 || echo '')
+        if [[ "$CURRENT_COLOR" == "blue" ]]; then
+          NEW_COLOR="green"
+        else
+          NEW_COLOR="blue"
+        fi
+        echo "Switching from '$CURRENT_COLOR' to '$NEW_COLOR'"
+        echo "NEW_COLOR=$NEW_COLOR" >> $GITHUB_ENV
 
     - name: Save version tag to artifact
       run: echo "${{ env.VERSION }}" > version.txt
@@ -218,27 +239,28 @@ jobs:
         fi
         echo "REPLICAS=$REPLICAS" >> $GITHUB_ENV
     
-    - name: Git pull with rebase before tfvars commit
+    - name: Update .env with new tags and active colour
       if: github.event.inputs.rollback_version == ''
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      id: envfile
       run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git stash --include-untracked
-          git pull --rebase origin master
-          git stash pop || echo "No stash to apply"
-      
-    - name: Commit and push terraform.tfvars
-      if: github.event.inputs.rollback_version == ''
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          git add -f ./terraform/terraform.tfvars
-          git commit -m "Update terraform.tfvars" || echo "Nothing to commit"
-          git push origin master 
+          cat > .env <<EOF
+          ACTIVE_COLOR=${{ env.NEW_COLOR }}
+          USER_API_IMAGE=$DOCKER_USER/$USER_IMAGE:${{ env.VERSION }}
+          VOTING_API_IMAGE=$DOCKER_USER/$VOTING_IMAGE:${{ env.VERSION }}
+          FRONTEND_IMAGE=$DOCKER_USER/$FRONTEND_IMAGE:${{ env.NEW_COLOR }}${{ env.VERSION }}
+          EOF
+          echo "\n.env now contains:\n-----------------"
+          cat .env
 
+    - name: Commit and push .env
+      if: github.event.inputs.rollback_version == ''
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          git add -f .env
+          git commit -m "ci: update .env (version=${{ env.VERSION }}, colour=${{ env.NEW_COLOR }}) [skip ci]" || echo "Nothing to commit"
+          git push origin master
+  
       # infra baseline setup
     - name: Terraform Init
       working-directory: ./terraform
@@ -275,6 +297,19 @@ jobs:
       with:
         name: k6report
         path: k6report.txt
+
+    - name: Deploy stack to Docker Swarm
+      env:
+          VERSION: ${{ env.VERSION }}
+          ACTIVE_COLOR: ${{ env.NEW_COLOR }}
+          REPLICAS: ${{ env.REPLICAS }}
+      run: |
+          # --with-registry-auth forwards your Hub creds
+          docker stack deploy \
+            --with-registry-auth \
+            --compose-file docker-stack.yml \
+            --env-file .env \
+            myapp
     
     - name: Notify Slack of finished deployment
       if: github.event.inputs.rollback_version == ''
@@ -282,15 +317,3 @@ jobs:
         curl -X POST -H 'Content-type: application/json' --data "{
         \"text\": \"*Deployment Finished Notification*\n*Workflow:* ${{ github.workflow }}\n*Status:* ${{ job.status }}\n*Branch:* ${{ github.ref_name }}\n*Initiated by:* ${{ github.actor }}\n*Version:* ${{ env.VERSION }}\"
         }" ${{ secrets.SLACK_WEBHOOK_URL }}
-
-    - name: Deploy stack to Docker Swarm
-      run: |
-          export VERSION=${{ env.VERSION }}
-          export ACTIVE_COLOR=blue # or green, dynamically
-          export REPLICAS=${{ env.REPLICAS }}
-          docker stack deploy -c docker-stack.yml myapp
-
-    - name: Decide active frontend
-      run: |
-          echo "ACTIVE_COLOR=green" >> $GITHUB_ENV
-
