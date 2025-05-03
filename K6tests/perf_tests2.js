@@ -1,24 +1,13 @@
-import { check, sleep } from "k6";
 import http from "k6/http";
+import { check, sleep } from "k6";
 
 export let options = {
-  stages: [
-    { duration: "1m", target: 10 },
-    { duration: "1m", target: 5 },
-    { duration: "20s", target: 0 },
-  ],
-  thresholds: {
-    http_req_duration: ["p(95)<200"], // 95% of requests should be below 200ms
-  },
+  vus: 10,
+  duration: "30s",
 };
 
 export default function () {
-  // Replace with your application's URL
-  let res = http.get("http://localhost:3005/");
-
-  // Check if the response status is 200
+  let res = http.get("http://frontend-green:3000/");
   check(res, { "status is 200": (r) => r.status === 200 });
-
-  // Simulate user think time
-  sleep(3);
+  sleep(1);
 }

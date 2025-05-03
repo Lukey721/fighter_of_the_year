@@ -65,6 +65,11 @@ resource "docker_container" "grafana" {
   }
 }
 
+resource "docker_image" "k6" {
+  name = "grafana/k6"
+}
+
+
 # User API
 resource "docker_image" "user_api" {
   name = var.user_api_image
@@ -211,6 +216,28 @@ resource "docker_container" "frontend_main" {
   depends_on = [
     docker_container.frontend_blue,
     docker_container.frontend_green
+  ]
+
+  networks_advanced {
+    name = module.core_infra.app_network_name
+  }
+}
+
+resource "docker_container" "k6_test_runner" {
+  name  = "k6-loadtest"
+  image = docker_image.k6.name
+
+  entrypoint = ["/bin/sh", "/tests/k6-entrypoint.sh"]
+
+  volumes {
+  host_path      = abspath("${path.module}/${var.k6_test_path}")
+  container_path = "/tests"
+ }
+
+  depends_on = [
+    docker_container.user_api,
+    docker_container.voting_api,
+    docker_container.frontend_main
   ]
 
   networks_advanced {

@@ -44,3 +44,8 @@ variable "active_color" {
   type    = string
   default = "blue"
 }
+
+variable "k6_test_path" {
+  description = "Path to the directory containing K6 test scripts"
+  type        = string
+}
