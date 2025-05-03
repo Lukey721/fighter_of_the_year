@@ -1,0 +1,7 @@
+[user]
+	name = Lukey721
+	email = lukeyconnolly@hotmail.com
+[core]
+	editor = \"C:\\Users\\lukey\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\code\" --wait
+[safe]
+	directory = C:\\Users\\lukey\\OneDrive - Technological University Dublin\\Code\\College Projects\\ufc-voting-microservices\\actions-runner\\_work\\fighter_of_the_year\\fighter_of_the_year
