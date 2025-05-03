@@ -1,0 +1,25 @@
+name: Test Self-Hosted Runner Deploy
+
+on:
+    push:
+      branches:
+        - testing
+    workflow_dispatch:
+  
+
+jobs:
+  test-deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Confirm Runner Is Alive
+      run: echo " Runner is active on $(hostname)"
+
+    - name: Check Docker Version
+      run: docker version
+
+    - name: Pull Hello World Docker Image
+      run: docker pull hello-world
+
+    - name: Run Hello World Container
+      run: docker run hello-world
