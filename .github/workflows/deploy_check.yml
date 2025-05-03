@@ -14,7 +14,7 @@ jobs:
     steps:
     - name: Confirm Runner Is Alive
       run: echo " Runner is active on $(hostname)"
-      shell: bash
+      shell: C:\Program Files\Git\bin\bash.exe
 
     - name: Check Docker Version
       run: docker version
