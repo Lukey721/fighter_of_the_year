@@ -63,18 +63,6 @@ jobs:
       id: vars
       run: echo "VERSION=$(date +%s)" >> "$GITHUB_ENV"
 
-    - name: Decide next active colour (blue/green)
-      id: colour
-      run: |
-        CURRENT_COLOR=$(grep -E '^ACTIVE_COLOR=' .env | cut -d'=' -f2 || echo '')
-        if [[ "$CURRENT_COLOR" == "blue" ]]; then
-          NEW_COLOR="green"
-        else
-          NEW_COLOR="blue"
-        fi
-        echo "Switching from '$CURRENT_COLOR' to '$NEW_COLOR'"
-        echo "NEW_COLOR=$NEW_COLOR" >> $GITHUB_ENV
-
     - name: Save version tag to artifact
       run: echo "${{ env.VERSION }}" > version.txt
     
@@ -238,17 +226,27 @@ jobs:
           REPLICAS=1
         fi
         echo "REPLICAS=$REPLICAS" >> $GITHUB_ENV
-    
-    - name: Update .env with new tags and active colour
-      if: github.event.inputs.rollback_version == ''
-      id: envfile
+
+    - name: Decide next active colour (blue/green)
+      id: colour
       run: |
-        {
-          echo "ACTIVE_COLOR=${NEW_COLOR}"
-          echo "USER_API_IMAGE=${DOCKER_USER}/${USER_IMAGE}:${VERSION}"
-          echo "VOTING_API_IMAGE=${DOCKER_USER}/${VOTING_IMAGE}:${VERSION}"
-          echo "FRONTEND_IMAGE=${DOCKER_USER}/${FRONTEND_IMAGE}:${NEW_COLOR}${VERSION}"
-        } > .env
+        CURRENT_COLOR=$(grep -E '^ACTIVE_COLOR=' .env | cut -d'=' -f2 || echo 'blue')
+        if [ "$CURRENT_COLOR" = "blue" ]; then
+        NEW_COLOR="green"
+        else
+        NEW_COLOR="blue"
+        fi
+        echo "CURRENT_COLOR=$CURRENT_COLOR" >> $GITHUB_ENV
+        echo "NEW_COLOR=$NEW_COLOR" >> $GITHUB_ENV
+
+    # Update .env file with new version and colour and replicas
+    - name: Update .env file
+      run: |
+          sed -i "s/^ACTIVE_COLOR=.*/ACTIVE_COLOR=${NEW_COLOR}/" .env
+          sed -i "s/^USER_API_IMAGE=.*/USER_API_IMAGE=${DOCKER_USER}\/${USER_IMAGE}:${VERSION}/" .env
+          sed -i "s/^VOTING_API_IMAGE=.*/VOTING_API_IMAGE=${DOCKER_USER}\/${VOTING_IMAGE}:${VERSION}/" .env
+          sed -i "s/^FRONTEND_IMAGE=.*/FRONTEND_IMAGE=${DOCKER_USER}\/${FRONTEND_IMAGE}:${NEW_COLOR}${VERSION}/" .env
+          sed -i "s/^REPLICAS=.*/REPLICAS=${REPLICAS}/" .env
 
     - name: Commit and push .env
       if: github.event.inputs.rollback_version == ''
@@ -296,13 +294,8 @@ jobs:
         name: k6report
         path: k6report.txt
 
-    - name: Deploy stack to Docker Swarm
-      env:
-          VERSION: ${{ env.VERSION }}
-          ACTIVE_COLOR: ${{ env.NEW_COLOR }}
-          REPLICAS: ${{ env.REPLICAS }}
+    - name: Deploy to Docker Swarm
       run: |
-          # --with-registry-auth forwards your Hub creds
           docker stack deploy \
             --with-registry-auth \
             --compose-file docker-stack.yml \
