@@ -58,3 +58,4 @@ grafana/plugins/**/grot-404-dark.svg
 /db_backups
 
 .github\workflows\db-backup.yml
+.env
