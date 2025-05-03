@@ -5,7 +5,7 @@ permissions:
 
 defaults:
   run:
-    shell: 'C:\\Program Files\\Git\\bin\\bash.exe'
+    shell: 'C:\Program Files\Git\usr\bin\bash.exe'
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
     runs-on: self-hosted
     defaults:
       run:
-        shell: 'C:\\Program Files\\Git\\bin\\bash.exe'
+        shell: 'C:\Program Files\Git\usr\bin\bash.exe'
 
     steps:
     - name: Checkout code
@@ -43,7 +43,7 @@ jobs:
 
     - name: Notify Slack of workflow started 
       if: always()
-      shell: bash
+      shell: 'C:\Program Files\Git\usr\bin\bash.exe'
       run: |
           curl -X POST -H 'Content-type: application/json' --data "{
             \"text\": \" *Deployment Started*\n*Workflow:* ${{ github.workflow }}\n*Branch:* ${{ github.ref_name }}\n*Initiated by:* ${{ github.actor }}\n*Rollback:* ${{ github.event.inputs.rollback_version != '' && 'Yes' || 'No' }}\n*Destroy:* ${{ github.event.inputs.destroy == 'true' && 'Yes' || 'No' }}\"
