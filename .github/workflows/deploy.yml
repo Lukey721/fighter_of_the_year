@@ -26,10 +26,8 @@ env:
 
 jobs:
   docker-build-push:
-    runs-on: [self-hosted, windows]
-    defaults:
-      run:
-        shell: bash
+    runs-on: ubuntu-latest
+
 
     steps:
     - name: Checkout code

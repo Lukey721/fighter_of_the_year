@@ -46,6 +46,7 @@ gem 'bootsnap', require: false
 
 # add due to vulnerability
 gem 'nokogiri', '>= 1.18.8'
+gem 'net-imap', '>= 0.5.7'
 
 # for vulnerabilities
 gem 'brakeman', require: false
