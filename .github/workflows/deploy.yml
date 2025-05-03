@@ -29,7 +29,7 @@ jobs:
     runs-on: [self-hosted, windows]
     defaults:
       run:
-        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
+        shell: bash
 
     steps:
     - name: Checkout code
@@ -44,7 +44,6 @@ jobs:
 
     - name: Notify Slack of workflow started 
       if: always()
-      shell: 'C:\Program Files\Git\usr\bin\bash.exe'
       run: |
           curl -X POST -H 'Content-type: application/json' --data "{
             \"text\": \" *Deployment Started*\n*Workflow:* ${{ github.workflow }}\n*Branch:* ${{ github.ref_name }}\n*Initiated by:* ${{ github.actor }}\n*Rollback:* ${{ github.event.inputs.rollback_version != '' && 'Yes' || 'No' }}\n*Destroy:* ${{ github.event.inputs.destroy == 'true' && 'Yes' || 'No' }}\"
