@@ -227,26 +227,32 @@ jobs:
         fi
         echo "REPLICAS=$REPLICAS" >> $GITHUB_ENV
 
-    - name: Decide next active colour (blue/green)
+    - name: Determine next active colour (blue/green)
       id: colour
       run: |
-        CURRENT_COLOR=$(grep -E '^ACTIVE_COLOR=' .env | cut -d'=' -f2 || echo 'blue')
-        if [ "$CURRENT_COLOR" = "blue" ]; then
-        NEW_COLOR="green"
-        else
-        NEW_COLOR="blue"
-        fi
-        echo "CURRENT_COLOR=$CURRENT_COLOR" >> $GITHUB_ENV
-        echo "NEW_COLOR=$NEW_COLOR" >> $GITHUB_ENV
+          if [ -f .env ]; then
+            CURRENT_COLOR=$(grep -E '^ACTIVE_COLOR=' .env | cut -d'=' -f2)
+          fi
+      
+          if [ -z "$CURRENT_COLOR" ]; then
+            CURRENT_COLOR="blue"
+          fi
+      
+          if [ "$CURRENT_COLOR" = "blue" ]; then
+            NEW_COLOR="green"
+          else
+            NEW_COLOR="blue"
+          fi
+      
+          echo "CURRENT_COLOR=$CURRENT_COLOR" >> $GITHUB_ENV
+          echo "NEW_COLOR=$NEW_COLOR" >> $GITHUB_ENV
 
     # Update .env file with new version and colour and replicas
     - name: Update .env file
       run: |
-          sed -i "s/^ACTIVE_COLOR=.*/ACTIVE_COLOR=${NEW_COLOR}/" .env
-          sed -i "s/^USER_API_IMAGE=.*/USER_API_IMAGE=${DOCKER_USER}\/${USER_IMAGE}:${VERSION}/" .env
-          sed -i "s/^VOTING_API_IMAGE=.*/VOTING_API_IMAGE=${DOCKER_USER}\/${VOTING_IMAGE}:${VERSION}/" .env
-          sed -i "s/^FRONTEND_IMAGE=.*/FRONTEND_IMAGE=${DOCKER_USER}\/${FRONTEND_IMAGE}:${NEW_COLOR}${VERSION}/" .env
-          sed -i "s/^REPLICAS=.*/REPLICAS=${REPLICAS}/" .env
+         sed -i "s/^VERSION=.*/VERSION=${VERSION}/" .env || echo "VERSION=${VERSION}" >> .env
+         sed -i "s/^REPLICAS=.*/REPLICAS=${REPLICAS}/" .env || echo "REPLICAS=${REPLICAS}" >> .env
+         sed -i "s/^ACTIVE_COLOR=.*/ACTIVE_COLOR=${NEW_COLOR}/" .env || echo "ACTIVE_COLOR=${NEW_COLOR}" >> .env
 
     - name: Commit and push .env
       if: github.event.inputs.rollback_version == ''
