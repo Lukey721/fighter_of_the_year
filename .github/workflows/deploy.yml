@@ -3,10 +3,6 @@ name: Deploy Workflow
 permissions:
   contents: write
 
-defaults:
-  run:
-    shell: bash
-
 on:
   push:
     branches: [ "master", "testing" ]
@@ -30,10 +26,10 @@ env:
 
 jobs:
   docker-build-push:
-    runs-on: self-hosted
+    runs-on: [self-hosted, windows]
     defaults:
       run:
-        shell: bash
+        shell: "C:\\Program Files\\Git\\usr\\bin\\bash.exe --noprofile --norc -eo pipefail {0}"
 
     steps:
     - name: Checkout code
