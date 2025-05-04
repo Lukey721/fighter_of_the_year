@@ -19,28 +19,20 @@ resource "docker_image" "k6" {
   name = "grafana/k6"
 }
 
-#resource "docker_container" "k6_test_runner" {
-#  name  = "k6-loadtest"
-#  image = docker_image.k6.name
-#
-#  entrypoint = ["/bin/sh", "/tests/k6-entrypoint.sh"]
-#
-#  volumes {
-#  host_path      = abspath("${path.module}/${var.k6_test_path}")
-#  container_path = "/tests"
-# }
-#
-#  depends_on = [
-#    docker_container.user_api,
-#    docker_container.voting_api,
-#    docker_container.frontend_main
-#  ]
-#
-#  networks_advanced {
- #   name = module.core_infra.app_network_name
-#  }
-#}
+resource "docker_container" "k6_test_runner" {
+  name  = "k6-loadtest"
+  image = docker_image.k6.name
 
+  entrypoint = ["/bin/sh", "/tests/k6-entrypoint.sh"]
+
+  volumes {
+  host_path      = abspath("${path.module}/${var.k6_test_path}")
+  container_path = "/tests"
+ }
+  networks_advanced {
+    name = module.core_infra.app_network_name
+  }
+}
 resource "docker_volume" "postgres_data" {
   name = "postgres_data"
 }

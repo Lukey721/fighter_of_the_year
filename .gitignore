@@ -61,3 +61,4 @@ grafana/plugins/**/grot-404-dark.svg
 .env
 
 ufc-voting-microservices/actions-runner/
+ufc-voting-microservices/actions-runner-li/

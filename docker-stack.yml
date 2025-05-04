@@ -111,7 +111,7 @@ services:
       - "3000:3000"
     networks:
       - app_net
-
+# Terraform baseline infra
 networks:
   app_net:
 volumes:
