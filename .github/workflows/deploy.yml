@@ -216,6 +216,7 @@ jobs:
 
       # allow scaling based on peak hours
     - name: Determine user-api replica count based on time of day
+      if: github.event.inputs.rollback_version == ''
       run: |
         HOUR=$(date +%H)
         if [ "$HOUR" -ge 12 ] && [ "$HOUR" -le 20 ]; then
@@ -228,6 +229,7 @@ jobs:
         echo "REPLICAS=$REPLICAS" >> $GITHUB_ENV
 
     - name: Determine next active colour (blue/green)
+      if: github.event.inputs.rollback_version == ''
       id: colour
       run: |
           if [ -f .env ]; then
@@ -255,7 +257,6 @@ jobs:
          sed -i "s/^ACTIVE_COLOR=.*/ACTIVE_COLOR=${NEW_COLOR}/" .env || echo "ACTIVE_COLOR=${NEW_COLOR}" >> .env
 
     - name: Commit and push .env
-      if: github.event.inputs.rollback_version == ''
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
