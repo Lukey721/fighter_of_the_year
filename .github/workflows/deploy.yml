@@ -4,8 +4,10 @@ permissions:
   contents: write
 
 on:
-  push:
-    branches: [ "master" ]
+  workflow_run:
+    workflows: ["Ruby on Rails CI"]
+    types:
+      - completed  # Trigger only when the Ruby CI workflow completes
   workflow_dispatch:
     inputs:
       destroy:
@@ -17,13 +19,23 @@ on:
         required: false
         default: ''
 
+env:
+  DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+  USER_IMAGE: ${{ secrets.DOCKER_USER_IMAGE_NAME }}
+  VOTING_IMAGE: ${{ secrets.DOCKER_VOTING_IMAGE_NAME }}
+  FRONTEND_IMAGE: ${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}
+
+
 jobs:
   docker-build-push:
     runs-on: ubuntu-latest
 
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0   # rebase later
 
     - name: Notify Slack of workflow started 
       if: always()
@@ -46,9 +58,6 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-
-    - name: Debug K6tests directory
-      run: ls -la ${{ github.workspace }}/K6tests
 
     - name: Set version tag using timestamp
       id: vars
@@ -75,7 +84,7 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git stash --include-untracked
-          git pull --rebase origin master
+          git pull --rebase origin testing
           git stash pop || echo "No stash to apply"
     
     - name: Save and commit version info
@@ -86,7 +95,7 @@ jobs:
         echo "${{ env.VERSION }}" > ./terraform/last_version.txt
         git add -f ./terraform/last_version.txt
         git commit -m "Track last deployed version: ${{ env.VERSION }}" || echo "Nothing to commit"
-        git push origin master
+        git push origin testing
 
       # Execute the rollback
     - name: Override version for rollback if specified
@@ -207,6 +216,7 @@ jobs:
 
       # allow scaling based on peak hours
     - name: Determine user-api replica count based on time of day
+      if: github.event.inputs.rollback_version == ''
       run: |
         HOUR=$(date +%H)
         if [ "$HOUR" -ge 12 ] && [ "$HOUR" -le 20 ]; then
@@ -218,41 +228,50 @@ jobs:
         fi
         echo "REPLICAS=$REPLICAS" >> $GITHUB_ENV
 
-    - name: Generate terraform.tfvars
-      run: |
-        echo "user_api_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_USER_IMAGE_NAME }}:${{ env.VERSION }}\"" > ./terraform/terraform.tfvars
-        echo "voting_api_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
-        echo "frontend_blue_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
-        echo "frontend_green_image = \"${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}\"" >> ./terraform/terraform.tfvars
-        echo "project_root = \"${{ github.workspace }}\"" >> ./terraform/terraform.tfvars
-        # come back to below when directing to new front end
-        # echo "active_color = \"green\"" >> ./terraform/terraform.tfvars
-        echo "user_api_replicas = ${{ env.REPLICAS }}" >> ./terraform/terraform.tfvars 
-    
-    - name: Git pull with rebase before tfvars commit
+    - name: Determine next active colour (blue/green)
       if: github.event.inputs.rollback_version == ''
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      id: colour
       run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git stash --include-untracked
-          git pull --rebase origin master
-          git stash pop || echo "No stash to apply"
+          if [ -f .env ]; then
+            CURRENT_COLOR=$(grep -E '^ACTIVE_COLOR=' .env | cut -d'=' -f2)
+          fi
       
-    - name: Commit and push terraform.tfvars
-      if: github.event.inputs.rollback_version == ''
+          if [ -z "$CURRENT_COLOR" ]; then
+            CURRENT_COLOR="blue"
+          fi
+      
+          if [ "$CURRENT_COLOR" = "blue" ]; then
+            NEW_COLOR="green"
+          else
+            NEW_COLOR="blue"
+          fi
+      
+          echo "CURRENT_COLOR=$CURRENT_COLOR" >> $GITHUB_ENV
+          echo "NEW_COLOR=$NEW_COLOR" >> $GITHUB_ENV
+
+    # Update .env file with new version and colour and replicas
+    - name: Update .env file
+      run: |
+         # Determine values based on rollback or normal deploy
+         if [ -n "${{ github.event.inputs.rollback_version }}" ]; then
+         VERSION="${{ github.event.inputs.rollback_version }}"
+         REPLICAS="${REPLICAS:-1}"
+         ACTIVE_COLOR="${ACTIVE_COLOR:-blue}"
+         fi
+        
+         sed -i "s/^VERSION=.*/VERSION=${VERSION}/" .env || echo "VERSION=${VERSION}" >> .env
+         sed -i "s/^REPLICAS=.*/REPLICAS=${REPLICAS}/" .env || echo "REPLICAS=${REPLICAS}" >> .env
+         sed -i "s/^ACTIVE_COLOR=.*/ACTIVE_COLOR=${NEW_COLOR}/" .env || echo "ACTIVE_COLOR=${NEW_COLOR}" >> .env
+
+    - name: Commit and push .env
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-          git add -f ./terraform/terraform.tfvars
-          git commit -m "Update terraform.tfvars" || echo "Nothing to commit"
-          git push origin master 
-
-    - name: Print .tfvars
-      run: cat ./terraform/terraform.tfvars
-
+          git add -f .env
+          git commit -m "ci: update .env (version=${{ env.VERSION }}, colour=${{ env.NEW_COLOR }}) [skip ci]" || echo "Nothing to commit"
+          git push origin testing
+  
+      # infra baseline setup
     - name: Terraform Init
       working-directory: ./terraform
       run: terraform init
@@ -265,32 +284,18 @@ jobs:
     - name: Terraform Destroy 
       if: github.event.inputs.destroy == 'true'
       working-directory: ./terraform
-      run: terraform destroy -auto-approve -var-file="terraform.tfvars"
+      run: terraform destroy -auto-approve
 
     - name: Terraform Apply
       working-directory: ./terraform
-      run: terraform apply -auto-approve -var-file="terraform.tfvars"
+      run: terraform apply -auto-approve
 
-    #- name: Check Prometheus endpoint is live
-    #  run: curl -f http://localhost:3000/metrics || exit 1
-    
-    # Pull docker image for K6
-    - name: Pull Docker image for K6
-      run: docker pull grafana/k6
-   
-    # Run K6 script
-    - name: Run K6 Load Test
-      run: |
-        docker run -i --rm \
-          -v ${{ github.workspace }}/K6tests:/tests \
-          grafana/k6 run /tests/perf_tests2.js > k6report.txt
-
-    # Upload k6 report as an artifact
-    - name: Upload K6 Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: k6report
-        path: k6report.txt
+    #- name: Deploy to Docker Swarm
+    #  run: |
+    #      docker stack deploy \
+    #        --with-registry-auth \
+    #        --compose-file docker-stack.yml \
+    #        myapp
     
     - name: Notify Slack of finished deployment
       if: github.event.inputs.rollback_version == ''
@@ -298,4 +303,3 @@ jobs:
         curl -X POST -H 'Content-type: application/json' --data "{
         \"text\": \"*Deployment Finished Notification*\n*Workflow:* ${{ github.workflow }}\n*Status:* ${{ job.status }}\n*Branch:* ${{ github.ref_name }}\n*Initiated by:* ${{ github.actor }}\n*Version:* ${{ env.VERSION }}\"
         }" ${{ secrets.SLACK_WEBHOOK_URL }}
-

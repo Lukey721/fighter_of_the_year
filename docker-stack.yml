@@ -1,0 +1,118 @@
+version: "3.8"
+
+services:
+  postgres-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_net
+
+  user-api:
+    image: lukey721/user-api:${VERSION}
+    deploy:
+      replicas: ${REPLICAS:-1} # user 1 replica by default
+      update_config:
+        parallelism: 1 # update 1 container at a time
+        delay: 10s # wait 10s between updates
+        order: start-first # start new container before stopping old one
+        failure_action: rollback # rollback on failure
+      restart_policy:
+        condition: on-failure
+    environment:
+      #- DATABASE_HOST=postgres-db
+      #- DATABASE_USERNAME=${DB_USER}
+      #- DATABASE_PASSWORD=${DB_PASSWORD}
+      #- DATABASE_NAME=${DB_NAME}
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@postgres-db:5432/${DB_NAME}
+      #- DATABASE_URL=postgres://postgres:password@db:5432/user_api_development  # PostgreSQL connection URL
+    ports:
+      - "3001:3000"
+      - "9394:9394"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9394/metrics || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app_net
+    
+
+  voting-api:
+    image: lukey721/voting-api:${VERSION}
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - USER_API_URL=http://user-api:3000
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@postgres-db:5432/${DB_NAME}
+    ports:
+      - "3002:3000"
+    networks:
+      - app_net
+    depends_on:
+      - user-api
+
+  frontend-blue:
+    image: lukey721/frontend:blue1746385780 # this was previously just version
+    ports:
+      - "3005:3000"
+    networks:
+      - app_net
+
+  frontend-green:
+    image: lukey721/frontend:green${VERSION}
+    ports:
+      - "3006:3000"
+    networks:
+      - app_net
+
+  frontend-main:
+    image: lukey721/frontend-main:latest
+    environment:
+    - ACTIVE_COLOR=${ACTIVE_COLOR}
+    ports:
+    - "8080:80"
+    networks:
+    - app_net
+    depends_on:
+    - frontend-blue
+    - frontend-green
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - app_net
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./grafana:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - app_net
+# Terraform baseline infra
+networks:
+  app_net:
+volumes:
+  postgres_data:

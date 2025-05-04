@@ -58,3 +58,14 @@ grafana/plugins/**/grot-404-dark.svg
 /db_backups
 
 .github\workflows\db-backup.yml
+.env
+
+ufc-voting-microservices/actions-runner/
+ufc-voting-microservices/actions-runner-li/
+actions-runner/
+actions-runner-li/
+deploy_check.yml
+ufc-voting-microservices/db_data/
+ufc-voting-microservices/db_backups/
+ufc-voting-microservices/.env/
+ufc-voting-microservices/docker-compose.yml

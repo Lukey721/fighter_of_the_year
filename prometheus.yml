@@ -3,9 +3,13 @@ global:
 
 scrape_configs:
   - job_name: 'user-api'
-    static_configs:
-      #- targets: ['user-api:9394']
-      - targets: ['user-api-0:9394', 'user-api-1:9394', 'user-api-2:9394']
+    dns_sd_configs:
+      - names: ['tasks.user-api']
+        type: A
+        port: 9394
+
   - job_name: 'voting-api'
-    static_configs:
-      - targets: ['voting-api:9395']
+    dns_sd_configs:
+      - names: ['tasks.voting-api']
+        type: A
+        port: 9395

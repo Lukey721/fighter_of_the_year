@@ -7,9 +7,9 @@
 name: "Ruby on Rails CI"
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "testing" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "testing" ]
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -25,6 +25,7 @@ jobs:
         ruby-version: 3.2.2 # The Ruby version 
         bundler-cache: true # Enable bundler caching for faster builds
 
+    # Install dependencies for all services
     - name: Install dependencies for ufc-frontend
       working-directory: ./ufc-frontend
       run: bundle install
@@ -102,14 +103,14 @@ jobs:
       working-directory: ./ufc-frontend
       run: bundle exec brakeman -z
 
+    # Run RSpec tests 
     - name: Run RSpec tests
       working-directory: ./ufc-frontend
-      run: bundle exec rspec
+      run: bundle exec rspec --format html --out tmp/rspec_results.html
 
-    # Upload code coverage report as an artifact
+    # Upload code coverage report as an HTML format
     - name: Save Coverage Report
       uses: actions/upload-artifact@v4
       with:
         name: coverage-report
-        path: coverage/
-  
+        path: ./ufc-frontend/tmp/rspec_results.html
