@@ -44,14 +44,12 @@ jobs:
             \"text\": \" *Deployment Started*\n*Workflow:* ${{ github.workflow }}\n*Branch:* ${{ github.ref_name }}\n*Initiated by:* ${{ github.actor }}\n*Rollback:* ${{ github.event.inputs.rollback_version != '' && 'Yes' || 'No' }}\n*Destroy:* ${{ github.event.inputs.destroy == 'true' && 'Yes' || 'No' }}\"
           }" ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      # Set up Git authentication for pushing changes
     - name: Set up Git authentication
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
         git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
-    # Login to Docker Hub
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
@@ -61,13 +59,10 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    # Set timestamp as version tag - This will give a unique version for each build
-    # This is useful for rollback purposes
     - name: Set version tag using timestamp
       id: vars
       run: echo "VERSION=$(date +%s)" >> "$GITHUB_ENV"
-    
-    # Save as artifact for rollback purposes
+
     - name: Save version tag to artifact
       run: echo "${{ env.VERSION }}" > version.txt
     
@@ -77,7 +72,6 @@ jobs:
         name: version-tag
         path: version.txt
 
-    # Take the last version from the tracked file
     - name: Save current version to tracked file
       run: echo "${{ env.VERSION }}" > ./terraform/last_version.txt
       
@@ -103,7 +97,7 @@ jobs:
         git commit -m "Track last deployed version: ${{ env.VERSION }}" || echo "Nothing to commit"
         git push origin testing
 
-    # Execute the rollback 
+      # Execute the rollback
     - name: Override version for rollback if specified
       if: github.event.inputs.rollback_version != ''
       run: |
@@ -123,43 +117,22 @@ jobs:
       id: build_voting_api
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }} ./${{ secrets.VOTING_CONTEXT }}
-    #temp remove
-    # Build frontend image (no push yet)
-    #- name: Build frontend-blue
-    #  if: github.event.inputs.rollback_version == ''
-    #  id: build_frontend_blue
-    #  run: |
-    #    docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }} ./${{ secrets.FRONTEND_CONTEXT }}
 
     # Build frontend image (no push yet)
-    #- name: Build frontend-green
-    #  if: github.event.inputs.rollback_version == ''
-    #  id: build_frontend_green
-    #  run: |
-    #    docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }} ./${{ secrets.FRONTEND_CONTEXT }}
-
-    - name: Read current .env values
-      id: current_env
+    - name: Build frontend-blue
+      if: github.event.inputs.rollback_version == ''
+      id: build_frontend_blue
       run: |
-        CURRENT_COLOR=$(grep -E '^ACTIVE_COLOR=' .env | cut -d'=' -f2)
-        CURRENT_VERSION=$(grep -E '^VERSION=' .env | cut -d'=' -f2)
-    
-        if [ "$CURRENT_COLOR" = "blue" ]; then
-         NEW_COLOR="green"
-        else
-         NEW_COLOR="blue"
-        fi
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }} ./${{ secrets.FRONTEND_CONTEXT }}
 
-        echo "CURRENT_COLOR=$CURRENT_COLOR" >> $GITHUB_ENV
-        echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
-        echo "NEW_COLOR=$NEW_COLOR" >> $GITHUB_ENV
-    
-    - name: Build new frontend (${NEW_COLOR})
+    # Build frontend image (no push yet)
+    - name: Build frontend-green
+      if: github.event.inputs.rollback_version == ''
+      id: build_frontend_green
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:${{ env.NEW_COLOR }}${{ env.VERSION }} ./${{ secrets.FRONTEND_CONTEXT }}
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:${{ env.NEW_COLOR }}${{ env.VERSION }}
-    
-      # Install Trivy for vulnerability scanning
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }} ./${{ secrets.FRONTEND_CONTEXT }}
+
+    # Install Trivy for vulnerability scanning
     - name: Install Trivy for vulnerability scanning
       if: github.event.inputs.rollback_version == ''
       run: |
@@ -193,30 +166,30 @@ jobs:
         path: voting-api-trivy-report.json
 
     # Scan the frontend Docker image for vulnerabilities
-    #- name: Scan Docker image with Trivy - Frontend blue
-    #  if: github.event.inputs.rollback_version == ''
-    #  run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }} > frontend-blue-trivy-report.json
+    - name: Scan Docker image with Trivy - Frontend blue
+      if: github.event.inputs.rollback_version == ''
+      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }} > frontend-blue-trivy-report.json
 
     # Upload the frontend Trivy scan report as an artifact
-    #- name: Upload Trivy scan report as artifact - Frontend blue
-    #  if: github.event.inputs.rollback_version == ''
-    #  uses: actions/upload-artifact@v4
-    #  with:
-    #    name: frontend-blue-trivy-report
-    #    path: frontend-blue-trivy-report.json
+    - name: Upload Trivy scan report as artifact - Frontend blue
+      if: github.event.inputs.rollback_version == ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-blue-trivy-report
+        path: frontend-blue-trivy-report.json
 
     # Scan the frontend Docker image for vulnerabilities
-    #- name: Scan Docker image with Trivy - Frontend green
-    #  if: github.event.inputs.rollback_version == ''
-    #  run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }} > frontend-green-trivy-report.json
+    - name: Scan Docker image with Trivy - Frontend green
+      if: github.event.inputs.rollback_version == ''
+      run: trivy image --exit-code 0 --no-progress --format json ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }} > frontend-green-trivy-report.json
 
     # Upload the frontend Trivy scan report as an artifact
-    #- name: Upload Trivy scan report as artifact - Frontend green
-    #  if: github.event.inputs.rollback_version == ''
-    #  uses: actions/upload-artifact@v4
-    #  with:
-    #    name: frontend-green-trivy-report
-    #    path: frontend-green-trivy-report.json
+    - name: Upload Trivy scan report as artifact - Frontend green
+      if: github.event.inputs.rollback_version == ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-green-trivy-report
+        path: frontend-green-trivy-report.json
 
     # Push the user-api image to Docker Hub
     - name: Push user-api Docker image to Docker Hub
@@ -229,20 +202,19 @@ jobs:
       run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_VOTING_IMAGE_NAME }}:${{ env.VERSION }}
 
     # Push the blue frontend image to Docker Hub
-    #- name: Push frontend blue Docker image to Docker Hub
-    #  if: github.event.inputs.rollback_version == ''
-    #  run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }}
+    - name: Push frontend blue Docker image to Docker Hub
+      if: github.event.inputs.rollback_version == ''
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:blue${{ env.VERSION }}
 
     # Push the green frontend image to Docker Hub
-    #- name: Push frontend green Docker image to Docker Hub
-    #  if: github.event.inputs.rollback_version == ''
-    #  run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}
-    
-    # set up Terraform
+    - name: Push frontend green Docker image to Docker Hub
+      if: github.event.inputs.rollback_version == ''
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_FRONTEND_IMAGE_NAME }}:green${{ env.VERSION }}
+
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
 
-    # allow scaling based on peak hours
+      # allow scaling based on peak hours
     - name: Determine user-api replica count based on time of day
       run: |
         HOUR=$(date +%H)
@@ -255,27 +227,25 @@ jobs:
         fi
         echo "REPLICAS=$REPLICAS" >> $GITHUB_ENV
 
-    # Determine next active colour (blue/green) this will tell which is inactive
-    # This is used for blue-green deployment strategy
-    #- name: Determine next active colour (blue/green)
-    #  id: colour
-    #  run: |
-    #      if [ -f .env ]; then
-    #        CURRENT_COLOR=$(grep -E '^ACTIVE_COLOR=' .env | cut -d'=' -f2)
-    #      fi
-    #  
-    #      if [ -z "$CURRENT_COLOR" ]; then
-    #        CURRENT_COLOR="blue"
-    #      fi
-    #  
-    #      if [ "$CURRENT_COLOR" = "blue" ]; then
-    #        NEW_COLOR="green"
-    #      else
-    #        NEW_COLOR="blue"
-    #      fi
-    #  
-    #      echo "CURRENT_COLOR=$CURRENT_COLOR" >> $GITHUB_ENV
-    #      echo "NEW_COLOR=$NEW_COLOR" >> $GITHUB_ENV
+    - name: Determine next active colour (blue/green)
+      id: colour
+      run: |
+          if [ -f .env ]; then
+            CURRENT_COLOR=$(grep -E '^ACTIVE_COLOR=' .env | cut -d'=' -f2)
+          fi
+      
+          if [ -z "$CURRENT_COLOR" ]; then
+            CURRENT_COLOR="blue"
+          fi
+      
+          if [ "$CURRENT_COLOR" = "blue" ]; then
+            NEW_COLOR="green"
+          else
+            NEW_COLOR="blue"
+          fi
+      
+          echo "CURRENT_COLOR=$CURRENT_COLOR" >> $GITHUB_ENV
+          echo "NEW_COLOR=$NEW_COLOR" >> $GITHUB_ENV
 
     # Update .env file with new version and colour and replicas
     - name: Update .env file
@@ -283,15 +253,6 @@ jobs:
          sed -i "s/^VERSION=.*/VERSION=${VERSION}/" .env || echo "VERSION=${VERSION}" >> .env
          sed -i "s/^REPLICAS=.*/REPLICAS=${REPLICAS}/" .env || echo "REPLICAS=${REPLICAS}" >> .env
          sed -i "s/^ACTIVE_COLOR=.*/ACTIVE_COLOR=${NEW_COLOR}/" .env || echo "ACTIVE_COLOR=${NEW_COLOR}" >> .env
-
-         if grep -q '^BLUE_VERSION=' .env; then
-          if [ "$CURRENT_COLOR" = "blue" ]; then
-             sed -i "s/^BLUE_VERSION=.*/BLUE_VERSION=${CURRENT_VERSION}/" .env
-             sed -i "s/^GREEN_VERSION=.*/GREEN_VERSION=${VERSION}/" .env
-          else
-             sed -i "s/^GREEN_VERSION=.*/GREEN_VERSION=${CURRENT_VERSION}/" .env
-             sed -i "s/^BLUE_VERSION=.*/BLUE_VERSION=${VERSION}/" .env
-          fi
 
     - name: Commit and push .env
       if: github.event.inputs.rollback_version == ''
@@ -302,7 +263,7 @@ jobs:
           git commit -m "ci: update .env (version=${{ env.VERSION }}, colour=${{ env.NEW_COLOR }}) [skip ci]" || echo "Nothing to commit"
           git push origin testing
   
-    # infra baseline setup
+      # infra baseline setup
     - name: Terraform Init
       working-directory: ./terraform
       run: terraform init
