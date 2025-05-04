@@ -9,7 +9,7 @@ on:
   push:
     branches: [ "master", "testing" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "testing" ]
 jobs:
   test:
     runs-on: ubuntu-latest
