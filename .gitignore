@@ -65,3 +65,5 @@ ufc-voting-microservices/actions-runner-li/
 actions-runner/
 actions-runner-li/
 deploy_check.yml
+ufc-voting-microservices/db_data/
+ufc-voting-microservices/db_backups/
