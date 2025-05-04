@@ -252,10 +252,12 @@ jobs:
     # Update .env file with new version and colour and replicas
     - name: Update .env file
       run: |
-        # Fallbacks in case variables are not set during rollback
-         VERSION="${VERSION:-$(grep -E '^VERSION=' .env | cut -d'=' -f2)}"
-         REPLICAS="${REPLICAS:-$(grep -E '^REPLICAS=' .env | cut -d'=' -f2)}"
-         ACTIVE_COLOR="${NEW_COLOR:-$(grep -E '^ACTIVE_COLOR=' .env | cut -d'=' -f2)}"
+         # Determine values based on rollback or normal deploy
+         if [ -n "${{ github.event.inputs.rollback_version }}" ]; then
+         VERSION="${{ github.event.inputs.rollback_version }}"
+         REPLICAS="${REPLICAS:-1}"
+         ACTIVE_COLOR="${ACTIVE_COLOR:-blue}"
+         fi
         
          sed -i "s/^VERSION=.*/VERSION=${VERSION}/" .env || echo "VERSION=${VERSION}" >> .env
          sed -i "s/^REPLICAS=.*/REPLICAS=${REPLICAS}/" .env || echo "REPLICAS=${REPLICAS}" >> .env
