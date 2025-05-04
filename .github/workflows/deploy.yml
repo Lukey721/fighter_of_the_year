@@ -5,9 +5,9 @@ permissions:
 
 on:
   workflow_run:
-      workflows: ["Ruby on Rails CI"]
-      types:
-        - completed  # Trigger only when the Ruby CI workflow completes
+    workflows: ["Ruby on Rails CI"]
+    types:
+      - completed  # Trigger only when the Ruby CI workflow completes
   workflow_dispatch:
     inputs:
       destroy:
