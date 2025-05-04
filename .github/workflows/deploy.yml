@@ -4,8 +4,10 @@ permissions:
   contents: write
 
 on:
-  push:
-    branches: [ "master", "testing" ]
+  workflow_run:
+      workflows: ["Ruby on Rails CI"]
+      types:
+        - completed  # Trigger only when the CI workflow completes
   workflow_dispatch:
     inputs:
       destroy:
@@ -34,11 +36,6 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0   # rebase later
-
-    - name: Check Bash availability
-      run: |
-          echo "Running shell: $SHELL"
-          bash --version
 
     - name: Notify Slack of workflow started 
       if: always()
