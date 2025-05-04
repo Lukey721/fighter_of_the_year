@@ -7,3 +7,9 @@ scrape_configs:
       - names: ['tasks.user-api']
         type: A
         port: 9394
+
+  - job_name: 'voting-api'
+    dns_sd_configs:
+      - names: ['tasks.voting-api']
+        type: A
+        port: 9395
