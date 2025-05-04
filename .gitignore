@@ -62,3 +62,6 @@ grafana/plugins/**/grot-404-dark.svg
 
 ufc-voting-microservices/actions-runner/
 ufc-voting-microservices/actions-runner-li/
+actions-runner/
+actions-runner-li/
+deploy_check.yml
