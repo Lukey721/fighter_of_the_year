@@ -67,3 +67,5 @@ actions-runner-li/
 deploy_check.yml
 ufc-voting-microservices/db_data/
 ufc-voting-microservices/db_backups/
+ufc-voting-microservices/.env/
+ufc-voting-microservices/docker-compose.yml
