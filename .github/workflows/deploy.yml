@@ -284,6 +284,15 @@ jobs:
          sed -i "s/^REPLICAS=.*/REPLICAS=${REPLICAS}/" .env || echo "REPLICAS=${REPLICAS}" >> .env
          sed -i "s/^ACTIVE_COLOR=.*/ACTIVE_COLOR=${NEW_COLOR}/" .env || echo "ACTIVE_COLOR=${NEW_COLOR}" >> .env
 
+         if grep -q '^BLUE_VERSION=' .env; then
+          if [ "$CURRENT_COLOR" = "blue" ]; then
+             sed -i "s/^BLUE_VERSION=.*/BLUE_VERSION=${CURRENT_VERSION}/" .env
+             sed -i "s/^GREEN_VERSION=.*/GREEN_VERSION=${VERSION}/" .env
+          else
+             sed -i "s/^GREEN_VERSION=.*/GREEN_VERSION=${CURRENT_VERSION}/" .env
+             sed -i "s/^BLUE_VERSION=.*/BLUE_VERSION=${VERSION}/" .env
+          fi
+
     - name: Commit and push .env
       if: github.event.inputs.rollback_version == ''
       env:
