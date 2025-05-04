@@ -271,7 +271,7 @@ jobs:
           git commit -m "ci: update .env (version=${{ env.VERSION }}, colour=${{ env.NEW_COLOR }}) [skip ci]" || echo "Nothing to commit"
           git push origin master
   
-      # infra baseline setup
+      # infra baseline setups
     - name: Terraform Init
       working-directory: ./terraform
       run: terraform init

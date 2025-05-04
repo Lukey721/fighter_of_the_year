@@ -4,7 +4,7 @@ set -e
 
 # 1. Pull latest from GitHub
 echo "Pulling the latest changes from GitHub"
-git pull origin testing
+git pull origin master
 
 # 2. Load .env file
 echo "Loading environment variables..."
