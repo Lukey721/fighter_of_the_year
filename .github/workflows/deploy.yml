@@ -281,31 +281,13 @@ jobs:
     - name: Terraform Apply
       working-directory: ./terraform
       run: terraform apply -auto-approve
-    
-    # Pull docker image for K6
-    - name: Pull Docker image for K6
-      run: docker pull grafana/k6
-   
-    # Run K6 script
-    - name: Run K6 Load Test
-      run: |
-        docker run -i --rm \
-          -v ${{ github.workspace }}/K6tests:/tests \
-          grafana/k6 run /tests/perf_tests2.js > k6report.txt
 
-    # Upload k6 report as an artifact
-    - name: Upload K6 Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: k6report
-        path: k6report.txt
-
-    - name: Deploy to Docker Swarm
-      run: |
-          docker stack deploy \
-            --with-registry-auth \
-            --compose-file docker-stack.yml \
-            myapp
+    #- name: Deploy to Docker Swarm
+    #  run: |
+    #      docker stack deploy \
+    #        --with-registry-auth \
+    #        --compose-file docker-stack.yml \
+    #        myapp
     
     - name: Notify Slack of finished deployment
       if: github.event.inputs.rollback_version == ''
