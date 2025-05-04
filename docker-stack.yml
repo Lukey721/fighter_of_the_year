@@ -69,14 +69,14 @@ services:
       - user-api
 
   frontend-blue:
-    image: lukey721/frontend:blue${BLUE_VERSION} # this was previously just version
+    image: lukey721/frontend:blue1746385780 # this was previously just version
     ports:
       - "3005:3000"
     networks:
       - app_net
 
   frontend-green:
-    image: lukey721/frontend:green${GREEN_VERSION}
+    image: lukey721/frontend:green${VERSION}
     ports:
       - "3006:3000"
     networks:
