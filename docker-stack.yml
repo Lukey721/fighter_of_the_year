@@ -83,7 +83,7 @@ services:
       - app_net
 
   frontend-main:
-    image: lukey721/frontend:blue${VERSION}
+    image: lukey721/frontend-main:latest
     environment:
     - ACTIVE_COLOR=${ACTIVE_COLOR}
     ports:
